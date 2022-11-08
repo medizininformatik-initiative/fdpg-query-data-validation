@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="b22ca09b-7512-4082-a433-0ad2bca8f0b7" />
+  <url value="https://example.org/fhir/StructureDefinition/ABIDE_MedicationAdministration_Ref" />
+  <name value="ABIDE_MedicationAdministration_Ref" />
+  <status value="draft" />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="MedicationAdministration" />
+  <baseDefinition value="https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/MedicationAdministration" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="MedicationAdministration.medication[x]">
+      <path value="MedicationAdministration.medication[x]" />
+      <type>
+        <code value="Reference" />
+      </type>
+      <binding>
+        <strength value="example" />
+      </binding>
+    </element>
+  </differential>
+</StructureDefinition>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <id value="86ee9083-f71d-4ee5-9e83-b3fbe4e90d46" />
+  <url value="https://example.org/fhir/StructureDefinition/ABIDE_MedicationStatement_Ref" />
+  <name value="ABIDE_MedicationStatement_Ref" />
+  <status value="draft" />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="MedicationStatement" />
+  <baseDefinition value="https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/MedicationStatement" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="MedicationStatement">
+      <path value="MedicationStatement" />
+      <constraint>
+        <key value="correctStatus" />
+        <requirements value="status has to be either active or completed to ensure consistent medication usage" />
+        <severity value="error" />
+        <human value="Status has to be either 'active' or 'completed'" />
+        <expression value="status contains 'active' or completed" />
+        <xpath value="boolean(status[@value='active' or @value='completed'])" />
+      </constraint>
+    </element>
+    <element id="MedicationStatement.medication[x]">
+      <path value="MedicationStatement.medication[x]" />
+      <type>
+        <code value="Reference" />
+      </type>
+    </element>
+  </differential>
+</StructureDefinition>

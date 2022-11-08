@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<StructureDefinition xmlns="http://hl7.org/fhir">
+  <url value="https://example.org/fhir/StructureDefinition/ABIDE_Condition_ICD10-GM" />
+  <version value="0.0.1" />
+  <name value="ABIDE_Condition_ICD10GM" />
+  <id value="71d5aa8f-74aa-4c43-845c-a6400aad8bd9"/>
+  <status value="active" />
+  <fhirVersion value="4.0.1" />
+  <kind value="resource" />
+  <abstract value="false" />
+  <type value="Condition" />
+  <baseDefinition value="https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose" />
+  <derivation value="constraint" />
+  <differential>
+    <element id="Condition.code.coding:icd10-gm">
+      <path value="Condition.code.coding" />
+      <sliceName value="icd10-gm" />
+      <min value="1" />
+    </element>
+  </differential>
+</StructureDefinition>

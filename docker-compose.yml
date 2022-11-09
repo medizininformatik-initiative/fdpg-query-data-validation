@@ -58,13 +58,14 @@ services:
       termite:
         condition: service_healthy
   fhir-marshal:
-    build:
-      context: ./fhir-marshal
-      dockerfile: Dockerfile
+    image: ghcr.io/itcr-uni-luebeck/fhir-marshal:latest
     environment:
       BLAZE_PORT: "${BLAZE_PORT}"
       TERMINOLOGY_SERVICE_PORT: "${TERMINOLOGY_SERVICE_PORT}"
       VALIDATOR_PORT: "${VALIDATOR_PORT}"
+      STRUCTURE_SERVER_URL: "http://blaze:8080/fhir"
+      TERMINOLOGY_SERVER_URL: "http://terminology-service:8083/fhir"
+      PORT: "8081"
     ports:
       - "${VALIDATOR_PORT}:8081"
     container_name: fhir-marshal

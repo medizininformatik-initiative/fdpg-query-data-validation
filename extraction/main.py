@@ -125,6 +125,7 @@ def run_test(client, total, count, v_url):
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
             mapped_issues = run_total_tests(resource_type, parameters, total, v_url, "application/json")
             raw_report[resource_type] = mapped_issues
+    print("All done")
     return raw_report
 
 
@@ -183,6 +184,10 @@ if __name__ == '__main__':
     count = args.count
     v_url = args.validation_endpoint
     client = FHIRClient(url, user, pw, fhir_token, fhir_proxy)
-    raw_report = run_test(client, total, count, v_url)
-    with open(os.path.join('report', 'raw_report.json'), 'w+') as raw_report_file:
-        raw_report_file.write(json.dumps(raw_report, indent=4))
+    try:
+        raw_report = run_test(client, total, count, v_url)
+        with open(os.path.join('report', 'raw_report.json'), 'w+') as raw_report_file:
+            raw_report_file.write(json.dumps(raw_report, indent=4))
+    except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
+        print("Report generation stopped due to missing connection to FHIR server")
+        print(str(e))

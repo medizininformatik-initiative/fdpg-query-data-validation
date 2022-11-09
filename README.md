@@ -17,7 +17,7 @@ the following commands:
 
 ```docker volume create blaze-data```
 
-```docker run -p 8080:8080 -v blaze-data samply/blaze:0.18```
+```docker run -d -p 8080:8080 -v blaze-data samply/blaze:0.18```
 
 **NOTE:** Further documentation can be found [here](https://github.com/samply/blaze/blob/master/docs/deployment/docker-deployment.md)
 
@@ -31,13 +31,30 @@ It allows for easy data upload using the following command:
 where **data_dir** is the directory your FHIR data in form of bundles (supported file formats can be found [here](https://github.com/samply/blazectl#upload))
 and **server_url** is the URL of your FHIR server (in the case of this example it would be *http://localhost:8080/fhir*).
 
+To obtain test data you can use the [KDS test data repository](https://github.com/medizininformatik-initiative/kerndatensatz-testdaten)
+which you can grab by running 
+
+```git clone https://github.com/medizininformatik-initiative/kerndatensatz-testdaten.git```
+
+The repository contains the **Test_Data** folder which contains the FHIR bundles. To upload the contained data in this
+example you would thus run
+
+```blazectl upload kerndatensatz_testdaten/Test_Data --server http://localhost:8080/fhir```
+
+to upload the data.
+
 ### Deploying the tool
 Once your server is running and containing sufficient data the validation tool can be run to validate data on it. To
-enable easy deployment on any system, the validation tool will be deployed using Docker. Before Deployment the 
-*environment variables* have to be adjusted depending on the specific circumstance. They can be adjusted by changing 
+enable easy deployment on any system, the validation tool will be deployed using Docker. Grab the repository by running
+
+```git clone https://github.com/medizininformatik-initiative/fdpg-query-data-validation.git```
+
+and move into the project directory.
+
+Before Deployment the *environment variables* have to be adjusted depending on the specific circumstance. They can be adjusted by changing 
 their values in the **.env** file. Descriptions of every environment variable can be found in the **Configuration**
 section. Using the aforementioned Blaze server without any authentication we have to set the **FHIR_SERVER_URL** 
-environment variable to *http://localhot:8080/fhir* which is the URL with which the server can be found. Finally, the 
+environment variable to *http://localhost:8080/fhir* which is the URL with which the server can be found. Finally, the 
 path where the final reports will be located on your machine can be set in the **REPORT_LOCATION** environment variable.
 As these two settings are dependent on the specific system this tool is run, you will very likely have to adjust them.
 

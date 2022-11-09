@@ -7,7 +7,7 @@ do
     exit 1
   fi
   echo "Waiting for Blaze ($i/100)"
-  result=$(curl --fail http://localhost:"$BLAZE_SERVER_URL"/fhir/metadata || exit 1)
+  result=$(curl --fail http://localhost:"$BLAZE_SERVER_URL"/health || exit 1)
   exit_code=$?
   echo "$result"
   if [ "$exit_code" -eq 0 ]

@@ -79,6 +79,7 @@ root.
 |          **TOTAL**           |                                    Total number of instances for each relevant resource type (and unique LOINC code for Observation instances) which are pulled from the FHIR server                                    |
 |          **COUNT**           |                                                                  Number of instances of a single page while paging through request to the FHIR server                                                                   |
 |     **REPORT_LOCATION**      |                                                               Location on the machine where you can find the generated reports after successful execution                                                               |
+|     **VALUE_SET_DIRECTORY**      |                                                               Location of the extended ValueSet Definitons on the host system                                                               |
 
 ## Architecture
 This validation tool consists out of multiple components each of which is serving a unique purpose. Upon startup, the 

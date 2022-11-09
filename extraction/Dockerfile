@@ -15,7 +15,7 @@ ENV HTTPS_PROXY: ${HTTPS_PROXY}
 VOLUME ["/app/report"]
 VOLUME ["/app/maps"]
 
-COPY ./extraction /app
+COPY . /app
 
 WORKDIR /app
 RUN pip3 install -r requirements.txt

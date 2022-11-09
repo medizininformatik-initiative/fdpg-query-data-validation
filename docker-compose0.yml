@@ -32,33 +32,6 @@ services:
       retries: 10
       start_period: 20s
       timeout: 5s
-  web:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    environment:
-       PYTHON_DEPS: "MarkupSafe==2.0.1 aws-sam-cli==1.37.0"
-       SERVICE_PORT: "${SERVICE_PORT}"
-       BLAZE_PORT: "${BLAZE_PORT}"
-       VALIDATOR_PORT: "${VALIDATOR_PORT}"
-       PACKAGES: "${PACKAGES}"
-    volumes:
-      - ./profiles:/app/profiles
-      - ./terminology_data:/app/terminology_data
-    ports:
-      - "${SERVICE_PORT}:8082"
-    container_name: validation-api
-    healthcheck:
-      test: curl --fail http://validation-api:8082/validate || exit 1
-      interval: 10s
-      retries: 20
-      start_period: 30s
-      timeout: 10s
-    depends_on:
-      blaze:
-        condition: service_healthy
-      termite:
-        condition: service_healthy
   fhir-marshal:
     image: ghcr.io/itcr-uni-luebeck/fhir-marshal:latest
     environment:
@@ -78,29 +51,9 @@ services:
       start_period: 20s
       timeout: 5s
     depends_on:
-      web:
-          condition: service_healthy
-  extraction:
-    build:
-      context: .
-      dockerfile: extraction/Dockerfile
-    environment:
-      FHIR_SERVER_URL: "${FHIR_SERVER_URL}"
-      TOTAL: "${TOTAL}"
-      COUNT: "${COUNT}"
-      REPORT_LOCATION: "${REPORT_LOCATION}"
-      VALIDATION_URL: "http://localhost:${SERVICE_PORT}/validate"
-      USERNAME: "${USERNAME}"
-      PASSWORD: "${PASSWORD}"
-      FHIR_TOKEN: "${FHIR_TOKEN}"
-      HTTP_PROXY: "${HTTP_PROXY}"
-      HTTPS_PROXY: "${HTTPS_PROXY}"
-    volumes:
-      - ${REPORT_LOCATION}:/app/report
-    network_mode: "host"
-    container_name: extraction
-    depends_on:
-      fhir-marshal:
+      blaze:
+        condition: service_healthy
+      termite:
         condition: service_healthy
 volumes:
   blaze-data:

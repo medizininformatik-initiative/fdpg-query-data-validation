@@ -1,7 +1,7 @@
 test.py
 .idea
 /api/terminology_data/*.json
-/terminology_data/
+/value_sets/
 
 !.gitkeep
 

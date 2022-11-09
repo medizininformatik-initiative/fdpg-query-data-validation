@@ -7,7 +7,7 @@ services:
       JAVA_TOOL_OPTIONS: "-Xmx2g"
     ports:
       - "${BLAZE_PORT}:8080"
-    container_name: blaze-upload
+    container_name: blaze
     volumes:
       - blaze-data
   blaze-upload:
@@ -50,6 +50,48 @@ services:
       blaze-upload:
         condition: service_completed_successfully
       termite:
+        condition: service_healthy
+  validation-mapper:
+    image: ghcr.io/itcr-uni-luebeck/validation-profile-mapper:latest
+    environment:
+      PYTHON_DEPS: "MarkupSafe==2.0.1 aws-sam-cli==1.37.0"
+      SERVICE_PORT: 8082
+      VALIDATOR_URL: "http://localhost:${VALIDATOR_PORT}"
+    volumes:
+      - ./maps:/app/maps
+    ports:
+      - "${VALIDATION_MAPPING_PORT}:8082"
+    network_mode: "host"
+    container_name: validation-mapper
+    healthcheck:
+      test: curl --fail http://validation-mapper:8082/validate || exit 1
+      interval: 5s
+      retries: 10
+      start_period: 20s
+      timeout: 5s
+    depends_on:
+      fhir-marshal:
+        condition: service_healthy
+  extraction:
+    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:latest
+    environment:
+      FHIR_SERVER_URL: "${FHIR_SERVER_URL}"
+      TOTAL: "${TOTAL}"
+      COUNT: "${COUNT}"
+      REPORT_LOCATION: "${REPORT_LOCATION}"
+      VALIDATION_URL: "http://localhost:${SERVICE_PORT}/validate"
+      USERNAME: "${USERNAME}"
+      PASSWORD: "${PASSWORD}"
+      FHIR_TOKEN: "${FHIR_TOKEN}"
+      HTTP_PROXY: "${HTTP_PROXY}"
+      HTTPS_PROXY: "${HTTPS_PROXY}"
+    volumes:
+      - ${REPORT_LOCATION}:/app/report
+      - maps:/app/maps
+    network_mode: "host"
+    container_name: extraction
+    depends_on:
+      validation-mapper:
         condition: service_healthy
 volumes:
   blaze-data:

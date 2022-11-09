@@ -113,7 +113,7 @@ def run_test(client, total, count, v_url):
         print(f"Running tests for {resource_type}")
         # Fetch data from FHIR server
         if resource_type == 'Observation':
-            val_mapping = json.load(open('validation_mapping.json'))
+            val_mapping = json.load(open('../maps/validation_mapping.json'))
             obs_reports = dict()
             for obs_code, _ in val_mapping['Observation'].items():
                 search_string = f"http://loinc.org|{obs_code}"

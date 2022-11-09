@@ -12,13 +12,8 @@ ENV FHIR_TOKEN: ${FHIR_TOKEN}
 ENV HTTP_PROXY: ${HTTP_PROXY}
 ENV HTTPS_PROXY: ${HTTPS_PROXY}
 
-# Install curl for healthcheck
-USER root
-RUN apk add curl
-# Install GCC for regex python module
-RUN apk add build-base
-
 VOLUME ["/app/report"]
+VOLUME ["/app/maps"]
 
 COPY ./extraction /app
 

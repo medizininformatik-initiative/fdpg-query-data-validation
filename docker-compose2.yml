@@ -1,13 +1,13 @@
 version: '3.8'
 services:
   extraction:
-    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:latest
+    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.1.15-RC
     environment:
       FHIR_SERVER_URL: "${FHIR_SERVER_URL}"
       TOTAL: "${TOTAL}"
       COUNT: "${COUNT}"
       REPORT_LOCATION: "${REPORT_LOCATION}"
-      VALIDATION_URL: "http://localhost:${SERVICE_PORT}/validate"
+      VALIDATION_URL: "http://validation-mapping-service:8082/validate"
       USERNAME: "${USERNAME}"
       PASSWORD: "${PASSWORD}"
       FHIR_TOKEN: "${FHIR_TOKEN}"
@@ -15,6 +15,5 @@ services:
       HTTPS_PROXY: "${HTTPS_PROXY}"
     volumes:
       - ${REPORT_LOCATION}:/app/report
-      - maps:/app/maps
-    network_mode: "host"
+      - ${VALIDATION_MAPPING_DIRECTOY:-./maps}:/app/maps
     container_name: extraction

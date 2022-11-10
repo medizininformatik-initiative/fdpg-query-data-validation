@@ -1,14 +1,15 @@
-FROM python:3.10
+FROM python:3.10-alpine
 
 ENV PACKAGES ""
 ENV BLAZE_SERVER_URL "http://localhost:8090/fhir"
 
 VOLUME ["/app/profiles"]
-RUN apt-get -y install curl
+RUN apk add curl
 
 # Install FHIR Populator
 RUN python -m pip install fhir-populator
 
 COPY . /app
+WORKDIR /app
 
-CMD sh /app/sd_upload.sh
+CMD sh sd_upload.sh

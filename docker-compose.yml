@@ -16,14 +16,16 @@ services:
       BLAZE_SERVER_URL: "http://blaze:8080/fhir"
       PACKAGES: "${SIMPLIFIER_PACKAGES}"
     volumes:
-      - ./fhir_profiles:/app/fhir_profiles
+      - ${FHIR_PROFILE_DIRECTORY:-./fhir_profiles}:/app/fhir_profiles
     container_name: blaze-upload
   termite:
     image: "ghcr.io/itcr-uni-luebeck/termite:latest"
     ports:
       - "${TERMINOLOGY_SERVICE_PORT}:8083"
+    environment:
+      TERMINOLOGY_SERVICE_PORT: 8083
     volumes:
-      - ./value_sets:/app/value_sets
+      - ${VALUE_SET_DIRECTORY:-./value_sets}:/app/value_sets
     container_name: terminology-service
     healthcheck:
       test: curl --fail http://terminology-service:8083/fhir/metadata || exit 1
@@ -50,6 +52,45 @@ services:
       blaze-upload:
         condition: service_completed_successfully
       termite:
+        condition: service_healthy
+  validation-mapping-service:
+    image: ghcr.io/itcr-uni-luebeck/validation-profile-mapper:latest
+    environment:
+      SERVICE_PORT: "8082"
+      VALIDATOR_URL: "http://fhir-marshal:8081/validate"
+    volumes:
+      - ${VALIDATION_MAPPING_DIRECTOY:-./maps}:/app/maps
+    ports:
+      - "${VALIDATION_MAPPING_PORT}:8082"
+    container_name: validation-mapping-service
+    healthcheck:
+      test: curl --fail http://validation-mapping-service:8082/validate || exit 1
+      interval: 5s
+      retries: 10
+      start_period: 20s
+      timeout: 5s
+    depends_on:
+      fhir-marshal:
+        condition: service_healthy
+  extraction:
+    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:latest
+    environment:
+      FHIR_SERVER_URL: "${FHIR_SERVER_URL}"
+      TOTAL: "${TOTAL}"
+      COUNT: "${COUNT}"
+      REPORT_LOCATION: "${REPORT_LOCATION}"
+      VALIDATION_URL: "http://validation-mapping-service:8082/validate"
+      USERNAME: "${USERNAME}"
+      PASSWORD: "${PASSWORD}"
+      FHIR_TOKEN: "${FHIR_TOKEN}"
+      HTTP_PROXY: "${HTTP_PROXY}"
+      HTTPS_PROXY: "${HTTPS_PROXY}"
+    volumes:
+      - ${REPORT_LOCATION}:/app/report
+    network_mode: "host"
+    container_name: extraction
+    depends_on:
+      validation-mapping-service:
         condition: service_healthy
 volumes:
   blaze-data:

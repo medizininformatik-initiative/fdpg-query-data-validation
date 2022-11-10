@@ -26,5 +26,6 @@ done
 for file in -exec $(find ./profiles -name '*.xml')
 do
   curl -vX POST -d @"$file" -H "Content-Type: application/xml" "${BLAZE_SERVER_URL}"
+  echo "Uploading ${file}"
 done
 echo "Upload finished"

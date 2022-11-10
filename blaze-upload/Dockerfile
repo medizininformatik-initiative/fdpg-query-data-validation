@@ -10,5 +10,6 @@ RUN apt-get -y install curl
 RUN python -m pip install fhir-populator
 
 COPY . /app
+WORKDIR /app
 
-CMD sh /app/sd_upload.sh
+CMD sh sd_upload.sh

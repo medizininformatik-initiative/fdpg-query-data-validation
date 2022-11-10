@@ -25,6 +25,8 @@ class FHIRClient:
             parameters = {}
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of {', '.join(resource_types)}"
         param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
+        print(f"Requesting: {self.__url}/{resource_type}?{param_string}")
+        # FIXME: ERROR Handling on bad request
         bundle = json.loads(requests.get(url=f"{self.__url}/{resource_type}?{param_string}", headers=self.__headers, proxies=self.__proxies).text)
         if not paging:
             return bundle
@@ -36,6 +38,7 @@ class FHIRClient:
                     next_url = get_next_url(bundle)
                     if next_url is None:
                         break
+                    print(f"Requesting: {next_url}")
                     bundle = json.loads(requests.get(url=next_url, headers=self.__headers, proxies=self.__proxies).text)
                     current_cnt += len(bundle.get('entry', []))
                 return bundles
@@ -60,6 +63,7 @@ class PagingResult:
         self.__next_url = get_next_url(self.__current_page)
         if self.__next_url is not None and self.__current_cnt < self.__max_cnt:
             bundle = self.__current_page
+            print(f"Requesting: {self.__next_url}")
             self.__current_page = json.loads(requests.get(self.__next_url, headers=self.__headers, auth=self.__auth).text)
             self.__current_cnt += len(bundle.get('entry', []))
             return bundle

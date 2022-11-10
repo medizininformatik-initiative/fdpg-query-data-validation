@@ -4,7 +4,7 @@ ENV PACKAGES ""
 ENV BLAZE_SERVER_URL "http://localhost:8090/fhir"
 
 VOLUME ["/app/profiles"]
-RUN apt-get -y install curl
+RUN apk add curl
 
 # Install FHIR Populator
 RUN python -m pip install fhir-populator

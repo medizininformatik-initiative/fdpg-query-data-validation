@@ -87,7 +87,7 @@ services:
       HTTPS_PROXY: "${HTTPS_PROXY}"
     volumes:
       - ${REPORT_LOCATION}:/app/report
-    network_mode: "host"
+      - ${VALIDATION_MAPPING_DIRECTOY:-./maps}:/app/maps
     container_name: extraction
     depends_on:
       validation-mapping-service:

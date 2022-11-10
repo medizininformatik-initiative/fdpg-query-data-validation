@@ -2,7 +2,6 @@ import argparse
 import os
 import requests
 import json
-import fhirpathpy
 
 from IssueMap import IssueMap
 from fhir import FHIRClient
@@ -82,7 +81,7 @@ def map_issues_to_entry(bundle, op_outcome):
 
 
 def get_issue_element(bundle, fhir_path_expr):
-    return fhirpathpy.evaluate(bundle, fhir_path_expr)
+    return ""
 
 
 test_type = {"Condition": simple_test,
@@ -113,7 +112,7 @@ def run_test(client, total, count, v_url):
         print(f"Running tests for {resource_type}")
         # Fetch data from FHIR server
         if resource_type == 'Observation':
-            val_mapping = json.load(open('../maps/validation_mapping.json'))
+            val_mapping = json.load(open('./maps/validation_mapping.json'))
             obs_reports = dict()
             for obs_code, _ in val_mapping['Observation'].items():
                 search_string = f"http://loinc.org|{obs_code}"

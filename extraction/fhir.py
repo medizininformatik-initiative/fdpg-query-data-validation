@@ -69,8 +69,12 @@ class PagingResult:
 
 def get_next_url(bundle):
     next_url = None
-    for link in bundle['link']:
-        if link['relation'] == 'next':
-            next_url = link['url']
-            break
+    if links := bundle.get('link'):
+        for link in links:
+            if link['relation'] == 'next':
+                next_url = link['url']
+                break
+    else:
+        # FIXME: FAIL EARLY FAIL HARD
+        pass
     return next_url

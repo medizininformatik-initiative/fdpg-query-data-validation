@@ -24,7 +24,8 @@ RUN chown -R 10001:10001 /app/report
 WORKDIR /app
 RUN pip3 install -r requirements.txt
 
-RUN chmod u+w+r docker_entrypoint.sh
+RUN chmod 744 report
+RUN chmod 744 docker_entrypoint.sh
 USER 10001
 
 ENTRYPOINT sh docker_entrypoint.sh

@@ -89,6 +89,7 @@ services:
       FHIR_TOKEN: "${FHIR_TOKEN}"
       HTTP_PROXY: "${HTTP_PROXY}"
       HTTPS_PROXY: "${HTTPS_PROXY}"
+      CA_FILE_NAME: "${CA_FILE_NAME}"
     volumes:
       - ${REPORT_LOCATION:-./report}:/app/report
       - ${VALIDATION_MAPPING_DIRECTORY:-./maps}:/app/maps

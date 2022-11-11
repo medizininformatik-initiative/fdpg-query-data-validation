@@ -7,6 +7,9 @@ from IssueMap import IssueMap
 from fhir import FHIRClient
 
 
+cert_dir = 'certificates'
+
+
 def configure_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('url', action='store', help="URL of the FHIR server from which to pull the data")
@@ -17,6 +20,7 @@ def configure_argparser():
                         default=None)
     parser.add_argument('--https-proxy', help='https proxy url for your fhir server - None if not set here', nargs="?",
                         default=None)
+    parser.add_argument('--cert', help='path to certificate file used to verify requests', default=None)
     parser.add_argument('-t', '--total', action='store', default=500, type=int, help="Total amount of resource instances"
                                                                                      " to pull for testing")
     parser.add_argument('-c', '--count', action='store', default=100, type=int, help="Amount of resource instances to "
@@ -179,13 +183,14 @@ if __name__ == '__main__':
     fhir_token = args.fhir_token
     fhir_proxy = {'http': args.http_proxy,
                   'https': args.https_proxy}
+    certificate = os.path.join(cert_dir, args.certificte)
     total = args.total
     count = args.count
     v_url = args.validation_endpoint
-    client = FHIRClient(url, user, pw, fhir_token, fhir_proxy)
+    client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate)
     try:
         raw_report = run_test(client, total, count, v_url)
-        with open(os.path.join('report', 'raw_report.json'), 'w+') as raw_report_file:
+        with open(os.path.join('report', 'raw_report.json'), mode='w+') as raw_report_file:
             raw_report_file.write(json.dumps(raw_report, indent=4))
     except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
         print("Report generation stopped due to missing connection to FHIR server")

@@ -1,0 +1,1 @@
+This directory is supposed to contain certificates used during requests to your FHIR server if required.

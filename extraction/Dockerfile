@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 FROM python:3.10-alpine
-ENV FHIR_SERVER_URL: ${FHIR_SERVER_URL}
+ENV FHIR_SERVER_URL: "http://localhost:8080/fhir"
 ENV TOTAL: 500
 ENV COUNT: 500
 ENV VALIDATION_URL: "http://localhost:8092/validate"
@@ -11,13 +11,20 @@ ENV PASSWORD: ""
 ENV FHIR_TOKEN: ${FHIR_TOKEN}
 ENV HTTP_PROXY: ${HTTP_PROXY}
 ENV HTTPS_PROXY: ${HTTPS_PROXY}
+ENV CA_FILE_NAME: ""
 
 VOLUME ["/app/report"]
 VOLUME ["/app/maps"]
 
 COPY . /app
 
+RUN useradd -r -s /bin/false 10001
+RUN chown -R 10001:10001 /app/report
+
 WORKDIR /app
 RUN pip3 install -r requirements.txt
 
-ENTRYPOINT python main.py ${FHIR_SERVER_URL} -u ${USERNAME} -p ${PASSWORD} -ft ${FHIR_TOKEN} --http-proxy${HTTP_PROXY} --https-proxy ${HTTPS_PROXY} -t ${TOTAL} -c ${COUNT} -v ${VALIDATION_URL}
+RUN chmod +x docker-entrypoint.sh
+USER 10001
+
+ENTRYPOINT sh docker_entrypoint.sh

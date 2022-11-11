@@ -1,5 +1,4 @@
 #!/bin/bash
-export "$(cat .env | xargs)"
 CA_FILE=${CA_FILE}
 FHIR_SERVER_URL=${FHIR_SERVER_URL:-"http://localhost:8080/fhir"}
 TOTAL=${TOTAL:-500}

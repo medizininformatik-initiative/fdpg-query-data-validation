@@ -183,7 +183,7 @@ if __name__ == '__main__':
     fhir_token = args.fhir_token
     fhir_proxy = {'http': args.http_proxy,
                   'https': args.https_proxy}
-    certificate = os.path.join(cert_dir, args.certificte)
+    certificate = os.path.join(cert_dir, args.cert)
     total = args.total
     count = args.count
     v_url = args.validation_endpoint

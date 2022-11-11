@@ -2,6 +2,6 @@ test.py
 .idea
 /api/terminology_data/*.json
 /value_sets/
-
+*/report/
 !.gitkeep
 

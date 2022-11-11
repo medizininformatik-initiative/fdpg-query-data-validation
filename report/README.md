@@ -1,0 +1,1 @@
+This directory is default location for generated reports

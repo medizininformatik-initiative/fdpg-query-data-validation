@@ -1,0 +1,68 @@
+version: '3.8'
+services:
+  blaze:
+    image: "ghcr.io/samply/blaze:0.18.3"
+    environment:
+      BASE_URL: "http://blaze:8080"
+      JAVA_TOOL_OPTIONS: "-Xmx2g"
+    ports:
+      - "${BLAZE_PORT:-8090}:8080"
+    container_name: blaze
+    volumes:
+      - "blaze-data:/app/data"
+    healthcheck:
+      test: curl --fail http://blaze:8080/health || exit 1
+      interval: 5s
+      retries: 20
+      start_period: 20s
+      timeout: 5s
+  blaze-upload:
+    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/blaze-upload:0.1.15-RC
+    environment:
+      BLAZE_SERVER_URL: "http://blaze:8080/fhir"
+      PACKAGES: "${SIMPLIFIER_PACKAGES}"
+    volumes:
+      - ${FHIR_PROFILE_DIRECTORY:-./fhir_profiles}:/app/fhir_profiles
+    container_name: blaze-upload
+    depends_on:
+      blaze:
+        condition: service_healthy
+  termite:
+    image: "ghcr.io/itcr-uni-luebeck/termite:latest"
+    ports:
+      - "${TERMINOLOGY_SERVICE_PORT:-8093}:8083"
+    environment:
+      TERMINOLOGY_SERVICE_PORT: 8083
+    volumes:
+      - ${VALUE_SET_DIRECTORY:-./value_sets}:/app/value_sets
+    container_name: terminology-service
+    healthcheck:
+      test: curl --fail http://terminology-service:8083/fhir/metadata || exit 1
+      interval: 5s
+      retries: 10
+      start_period: 20s
+      timeout: 5s
+  fhir-marshal:
+    image: "ghcr.io/itcr-uni-luebeck/fhir-marshal:latest"
+    environment:
+      STRUCTURE_SERVER_URL: "http://blaze:8080/fhir"
+      TERMINOLOGY_SERVER_URL: "http://terminology-service:8083/fhir"
+      PORT: "8081"
+    ports:
+      - "${VALIDATOR_PORT:-8091}:8081"
+    container_name: fhir-marshal
+    healthcheck:
+      test: 'curl -X POST http://fhir-marshal:8081/validate -H "Content-Type: application/json" || exit 1'
+      interval: 5s
+      retries: 20
+      start_period: 20s
+      timeout: 5s
+    depends_on:
+      blaze-upload:
+        condition: service_completed_successfully
+      termite:
+        condition: service_healthy
+volumes:
+  blaze-data:
+    name: "fdpg-blaze-data"
+    external: false

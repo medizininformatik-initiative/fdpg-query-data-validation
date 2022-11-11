@@ -15,4 +15,5 @@ if [ -f "certificates/$CA_FILE_NAME" ]; then
     export REQUESTS_CA_BUNDLE="certificates/$CA_FILE_NAME"
 fi
 
-echo $(python main.py ${FHIR_SERVER_URL} -u ${USERNAME} -p ${PASSWORD} -ft ${FHIR_TOKEN} --http-proxy${HTTP_PROXY} --https-proxy ${HTTPS_PROXY} --cert ${REQUESTS_CA_BUNDLE} -t ${TOTAL} -c ${COUNT} -v ${VALIDATION_URL})
+return=$(python main.py ${FHIR_SERVER_URL} -u ${USERNAME} -p ${PASSWORD} -ft ${FHIR_TOKEN} --http-proxy${HTTP_PROXY} --https-proxy ${HTTPS_PROXY} --cert ${REQUESTS_CA_BUNDLE} -t ${TOTAL} -c ${COUNT} -v ${VALIDATION_URL})
+echo ${return}

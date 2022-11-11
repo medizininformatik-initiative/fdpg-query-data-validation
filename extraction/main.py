@@ -20,7 +20,7 @@ def configure_argparser():
                         default=None)
     parser.add_argument('--https-proxy', help='https proxy url for your fhir server - None if not set here', nargs="?",
                         default=None)
-    parser.add_argument('--cert', help='path to certificate file used to verify requests', default=None)
+    parser.add_argument('--cert', help='path to certificate file used to verify requests', nargs="?", default=None)
     parser.add_argument('-t', '--total', action='store', default=500, type=int, help="Total amount of resource instances"
                                                                                      " to pull for testing")
     parser.add_argument('-c', '--count', action='store', default=100, type=int, help="Amount of resource instances to "

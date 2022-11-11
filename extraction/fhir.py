@@ -28,7 +28,7 @@ class FHIRClient:
         param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
         print(f"Requesting: {self.__url}/{resource_type}?{param_string}")
         # FIXME: ERROR Handling on bad request
-        bundle = json.loads(requests.get(url=f"{self.__url}/{resource_type}?{param_string}", headers=self.__headers, proxies=self.__proxies, verifiy=self.__cert).text)
+        bundle = json.loads(requests.get(url=f"{self.__url}/{resource_type}?{param_string}", headers=self.__headers, proxies=self.__proxies, verify=self.__cert).text)
         if not paging:
             return bundle
         else:
@@ -40,7 +40,7 @@ class FHIRClient:
                     if next_url is None:
                         break
                     print(f"Requesting: {next_url}")
-                    bundle = json.loads(requests.get(url=next_url, headers=self.__headers, proxies=self.__proxies, verifiy=self.__cert).text)
+                    bundle = json.loads(requests.get(url=next_url, headers=self.__headers, proxies=self.__proxies, verify=self.__cert).text)
                     current_cnt += len(bundle.get('entry', []))
                 return bundles
             else:
@@ -66,7 +66,7 @@ class PagingResult:
         if self.__next_url is not None and self.__current_cnt < self.__max_cnt:
             bundle = self.__current_page
             print(f"Requesting: {self.__next_url}")
-            self.__current_page = json.loads(requests.get(self.__next_url, headers=self.__headers, auth=self.__auth, verifiy=self.__cert).text)
+            self.__current_page = json.loads(requests.get(self.__next_url, headers=self.__headers, auth=self.__auth, verify=self.__cert).text)
             self.__current_cnt += len(bundle.get('entry', []))
             return bundle
         else:

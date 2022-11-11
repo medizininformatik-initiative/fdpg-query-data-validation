@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.10-alpine
+FROM python:3.10
 ENV FHIR_SERVER_URL: "http://localhost:8080/fhir"
 ENV TOTAL: 500
 ENV COUNT: 500
@@ -24,7 +24,7 @@ RUN chown -R 10001:10001 /app/report
 WORKDIR /app
 RUN pip3 install -r requirements.txt
 
-RUN chmod +x docker-entrypoint.sh
+RUN chmod +x docker_entrypoint.sh
 USER 10001
 
 ENTRYPOINT sh docker_entrypoint.sh

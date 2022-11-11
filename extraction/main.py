@@ -6,7 +6,6 @@ import json
 from IssueMap import IssueMap
 from fhir import FHIRClient
 
-
 cert_dir = 'certificates'
 
 
@@ -21,10 +20,11 @@ def configure_argparser():
     parser.add_argument('--https-proxy', help='https proxy url for your fhir server - None if not set here', nargs="?",
                         default=None)
     parser.add_argument('--cert', help='path to certificate file used to verify requests', nargs="?", default=None)
-    parser.add_argument('-t', '--total', action='store', default=500, type=int, help="Total amount of resource instances"
-                                                                                     " to pull for testing")
+    parser.add_argument('-t', '--total', action='store', default=500, type=int,
+                        help="Total amount of resource instances"
+                             " to pull for testing")
     parser.add_argument('-c', '--count', action='store', default=100, type=int, help="Amount of resource instances to "
-                                                                                    "pull each request regarding page size")
+                                                                                     "pull each request regarding page size")
     parser.add_argument('-v', '--validation-endpoint', action='store', default='http://localhost:8082/validate',
                         help='URL of the validation endpoint used for validating the data')
     return parser
@@ -47,7 +47,8 @@ def simple_test(data, v_url, content_type):
         return json.loads(response.text)
     else:
         print(data)
-        raise Exception(f"Test failed due inadequate response status {response.status_code}; Response header: {response.text}")
+        raise Exception(
+            f"Test failed due inadequate response status {response.status_code}; Response header: {response.text}")
 
 
 def observation_test(data, v_url, content_type):
@@ -137,7 +138,7 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
     mapped_issues = dict()
     paging_result = client.get(resource_type, parameters, max_cnt=total)
     for idx, bundle in enumerate(paging_result):
-        print(f"Status: {idx} of {int(max(total/parameters['_count'], 1))} requests processed ", end='\b', flush=True)
+        print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b', flush=True)
         op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
         mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
@@ -183,7 +184,9 @@ if __name__ == '__main__':
     fhir_token = args.fhir_token
     fhir_proxy = {'http': args.http_proxy,
                   'https': args.https_proxy}
-    certificate = os.path.join(cert_dir, args.cert)
+    certificate = None
+    if args.cert is not None:
+        certificate = args.cert
     total = args.total
     count = args.count
     v_url = args.validation_endpoint

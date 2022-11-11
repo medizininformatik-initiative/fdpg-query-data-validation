@@ -82,7 +82,6 @@ services:
       FHIR_SERVER_URL: "${FHIR_SERVER_URL:-http://localhost:8080/fhir}"
       TOTAL: "${TOTAL:-500}"
       COUNT: "${COUNT:-500}"
-      REPORT_LOCATION: "/app/report"
       VALIDATION_URL: "http://validation-mapping-service:8082/validate"
       FHIR_USERNAME: "${FHIR_USERNAME}"
       FHIR_PASSWORD: "${FHIR_PASSWORD}"

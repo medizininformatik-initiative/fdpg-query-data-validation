@@ -194,6 +194,7 @@ if __name__ == '__main__':
     try:
         raw_report = run_test(client, total, count, v_url)
         with open(os.path.join('report', 'raw_report.json'), mode='w+') as raw_report_file:
+            print(str(raw_report_file))
             raw_report_file.write(json.dumps(raw_report, indent=4))
     except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
         print("Report generation stopped due to missing connection to FHIR server")

@@ -13,19 +13,16 @@ ENV HTTP_PROXY: ${HTTP_PROXY}
 ENV HTTPS_PROXY: ${HTTPS_PROXY}
 ENV CA_FILE_NAME: ""
 
-VOLUME ["/app/report"]
-VOLUME ["/app/maps"]
-
 COPY . /app
 
-RUN useradd -r -s /bin/false 10001
-RUN chown -R 10001:10001 /app/report
+# RUN useradd -r -s /bin/false -u 10001 10001
+RUN chown -R 1000:1000 app/report
 
 WORKDIR /app
 RUN pip3 install -r requirements.txt
 
-RUN chmod 744 report
-RUN chmod 744 docker_entrypoint.sh
-USER 10001
+RUN chmod -R u=rwx report
+RUN chmod u=x docker_entrypoint.sh
+USER 1000
 
 ENTRYPOINT sh docker_entrypoint.sh

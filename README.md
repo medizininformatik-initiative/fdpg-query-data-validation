@@ -22,7 +22,7 @@ Navigate into the project directory: `cd /opt/fdpg-query-data-validation` <br />
 Checkout the version (git tag) of the fdpg-query-data-validation you would like to install: `git checkout tags/<your-tag-name-here>` <br />
 
 ### Step 3 - Initialise .env files
-The fdpg-query-data-validation requires an .env file for the docker-compose setup. If you are setting up the project new and have not done so yet execute the `initialise-env-file.sh`.
+The fdpg-query-data-validation requires an .env file for the docker-compose setup. If you are setting up the project new and have not done so yet execute the `bash initialize-env-file.sh`.
 
 If you have set up the tool before compare the .env to the .env.default env files of each component and copy the additional params as appropriate
 

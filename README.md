@@ -37,7 +37,7 @@ Change the following enviroment variables to match the configuration of the FHIR
 ### Step 5 Download required value sets
 
 The required ValueSets for the validation are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453) 
-Upload the value_sets_*.zip file to your server, unpack it and copy the ValueSets files to your value_sets folder
+Upload the value_sets_*.zip file to your server, unpack it and copy the ValueSets files to your value_sets folder. Afterwards return to your installation dir.
 
 ```bash
 sudo -s
@@ -46,6 +46,7 @@ cd /<path>/<to>/<downloaded>/<ValueSet>
 unzip value_sets_*.zip
 cd value_sets
 cp * /opt/fdpg-query-data-validation/value_sets
+cd /opt/fdpg-query-data-validation
 ```     
 
 ### Step 6 Startup

@@ -50,13 +50,13 @@ cd /opt/fdpg-query-data-validation
 ```     
 
 ### Step 6 Startup
-To start the validaiton process run: `sh startup_and_run.sh`
+To start the validaiton process run: `bash startup_and_run.sh`
 This will perform an initial setup which takes about 5 minutes and performs 1 validation run.
 The report is available at REPORT_LOCATION
 
-If you want to rerun the validation process run: `sh run.sh`
+If you want to rerun the validation process run: `bash run.sh`
 
-To stop all container run: `sh shutdown.sh`
+To stop all container run: `bash shutdown.sh`
 
     
 ### Deploying a FHIR server

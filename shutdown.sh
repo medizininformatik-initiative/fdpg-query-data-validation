@@ -1,4 +1,4 @@
 #!/bin/bash
-docker-compose down -f docker-compose1.yml
-docker-compose down -f docker-compose2.yml
-echo "Shut down finished"
+docker-compose -p PROJECT_CONTEXT down -f docker-compose-validation.yml
+docker-compose -p PROJECT_CONTEXT down -f docker-compose-vms.yml
+echo "Shutdown finished"

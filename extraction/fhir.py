@@ -27,7 +27,6 @@ class FHIRClient:
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of {', '.join(resource_types)}"
         param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
         print(f"Requesting: {self.__url}/{resource_type}?{param_string}")
-        # FIXME: ERROR Handling on bad request
         bundle = json.loads(requests.get(url=f"{self.__url}/{resource_type}?{param_string}", headers=self.__headers, proxies=self.__proxies, verify=self.__cert).text)
         if not paging:
             return bundle
@@ -51,6 +50,7 @@ class PagingResult:
 
     def __init__(self, bundle, max_cnt=sys.maxsize, headers=None, auth=None, cert=None):
         self.__current_page = bundle
+        self.__total = bundle.get('total', bundle.get('entry', 0))
         self.__next_url = get_next_url(bundle)
         self.__max_cnt = max_cnt
         self.__current_cnt = 0
@@ -72,6 +72,9 @@ class PagingResult:
         else:
             raise StopIteration
 
+    def get_total(self):
+        return self.__total
+
 
 def get_next_url(bundle):
     next_url = None
@@ -81,6 +84,5 @@ def get_next_url(bundle):
                 next_url = link['url']
                 break
     else:
-        # FIXME: FAIL EARLY FAIL HARD
-        pass
+        raise Exception(f"Failed to retrieve bundle link")
     return next_url

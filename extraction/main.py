@@ -1,5 +1,7 @@
 import argparse
 import os
+import time
+
 import requests
 import json
 
@@ -7,7 +9,6 @@ from IssueMap import IssueMap
 from fhir import FHIRClient
 
 cert_dir = 'certificates'
-
 
 def configure_argparser():
     parser = argparse.ArgumentParser()
@@ -46,9 +47,10 @@ def simple_test(data, v_url, content_type):
     if response.status_code == 200:
         return json.loads(response.text)
     else:
+        msg = f"Test failed due inadequate response status {response.status_code}; Response header: {response.text}"
+        print(f"WARNING: {msg}")
         print(data)
-        raise Exception(
-            f"Test failed due inadequate response status {response.status_code}; Response header: {response.text}")
+        raise Exception(msg)
 
 
 def observation_test(data, v_url, content_type):
@@ -89,6 +91,11 @@ def get_issue_element(bundle, fhir_path_expr):
     return ""
 
 
+def generate_issue(severity, type, diagnostics):
+    return {"severity": severity,
+            "type": type,
+            "diagnostics": diagnostics}
+
 test_type = {"Condition": simple_test,
              "Observation": observation_test,
              "Medication": simple_test,
@@ -112,6 +119,8 @@ type_profiles = {
 def run_test(client, total, count, v_url):
     print(f"Running tests for the following resources : {', '.join(type_profiles.keys())}")
     raw_report = dict()
+    error_issues = {"issue": []}
+    general_issues = {"issue": []}
     aggregated_report = dict()
     for resource_type, test in test_type.items():
         print(f"Running tests for {resource_type}")
@@ -122,27 +131,50 @@ def run_test(client, total, count, v_url):
             for obs_code, _ in val_mapping['Observation'].items():
                 search_string = f"http://loinc.org|{obs_code}"
                 parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
-                mapped_issues = run_total_tests(resource_type, parameters, total, v_url, "application/json")
+                general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url, "application/json")
                 obs_reports[obs_code] = mapped_issues
+                error_issues['issue'].extend(errors)
+                general_issues['issue'].extend(general)
             raw_report[resource_type] = obs_reports
         else:
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
-            mapped_issues = run_total_tests(resource_type, parameters, total, v_url, "application/json")
+            general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url, "application/json")
             raw_report[resource_type] = mapped_issues
+            error_issues['issue'].extend(errors)
+            general_issues['issue'].extend(general)
+    raw_report['general'] = general_issues
+    raw_report['error'] = error_issues
     print("All done")
     return raw_report
 
 
 # Returns issues grouped by the instance ID
 def run_total_tests(resource_type, parameters, total, v_url, content_type):
+    general_issues = list()
     mapped_issues = dict()
+    error_issues = list()
     paging_result = client.get(resource_type, parameters, max_cnt=total)
-    for idx, bundle in enumerate(paging_result):
-        print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b', flush=True)
-        op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
-        mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
+    if paging_result.get_total() == 0:
+        param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
+        print(f"Excluding profile constraint for {resource_type}?{param_string} since no data matches it")
+        general_issues.append(generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
+        parameters.pop('_profile', None)
+        paging_result = client.get(resource_type, parameters, max_cnt=total)
+    if paging_result.get_total() == 0:
+        param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
+        msg = f"No matches found for {resource_type}?{param_string}"
+        print(msg)
+        general_issues.append(generate_issue("warning", "processing", msg))
+    else:
+        for idx, bundle in enumerate(paging_result):
+            print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b', flush=True)
+            try:
+                op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
+                mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
+            except Exception as e:
+                error_issues.append(generate_issue("error", "exception", str(e)))
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
-    return mapped_issues
+    return general_issues, mapped_issues, error_issues
 
 
 # TODO
@@ -193,8 +225,10 @@ if __name__ == '__main__':
     client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate)
     try:
         raw_report = run_test(client, total, count, v_url)
-        with open(os.path.join('report', 'raw_report.json'), mode='w+') as raw_report_file:
+        raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
+        with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
             raw_report_file.write(json.dumps(raw_report, indent=4))
+            print(f"Generated reports: {raw_report_name}")
     except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
         print("Report generation stopped due to missing connection to FHIR server")
         print(str(e))

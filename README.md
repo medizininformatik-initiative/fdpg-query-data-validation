@@ -38,11 +38,15 @@ Before deploying this tool you need some FHIR server to which request can be mad
 the [Blaze FHIR server](https://github.com/samply/blaze) which you can easily deploy using Docker with
 the following commands:
 
+```docker network create feasibility-deploy_default```
+
 ```docker volume create blaze-data```
 
-```docker run -d --net=feasibility-deploy -p 8080:8080 -v blaze-data samply/blaze:0.18```
+```docker run -d --net=feasibility-deploy_default -p 8080:8080 -v blaze-data samply/blaze:0.18```
 
 **NOTE:** Further documentation can be found [here](https://github.com/samply/blaze/blob/master/docs/deployment/docker-deployment.md)
+**NOTE:** If you adjust the network name via the environment variable **PROJECT_CONTEXT** the network name would change
+to *<project_context>_default* which you have to account for in the *docker network create* and *docker run* command
 
 ### Uploading data to Blaze FHIR server
 Once the server is up and running you can upload your FHIR data to the server using the [FHIR REST API](https://www.hl7.org/fhir/http.html)

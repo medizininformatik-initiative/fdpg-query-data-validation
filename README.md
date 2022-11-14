@@ -1,4 +1,4 @@
-# ABIDE Validation
+# fdpg-query-data-validation
 This project provides a validation service in order to validate FHIR data
 with respects to data quality, the requirements of the FDPG network and to 
 ascertain what codes and values are most commonly used at the different sites.
@@ -10,29 +10,54 @@ recorded for it to conform to the requirements of the FDPG platform.
 This section will explore the deployment in an exemplary environment to not only provide information on
 how to run this tool itself, but also on how to integrate it into existing software infrastructure.
 
-1. **Provide FHIR server with data that you want to validate.** If you don't have a FHIR server already set up you view
-     the **Deploying a FHIR server** section on how to start up the Blaze FHIR server and how to upload data on it.
-2. **Pull this repository from GitHub using the command prompt and run**
+### Step 1 - Installation Prerequisites:
+If not already installed on your virtual machine download and install: 
+Docker (https://docs.docker.com/engine/install/ubuntu/) and docker-compose (https://docs.docker.com/compose/install/).
 
-```git clone https://github.com/medizininformatik-initiative/fdpg-query-data-validation.git```.
+### Step 2 - Clone this Repository to your virtual machine
+ssh to your virtual machine and switch to sudo `sudo -s` <br />
+Designate a folder for your setup in which to clone the repositiory, we suggest (`cd /opt`) <br />
+Navigate to the directory and clone this repository from GitHub: ```git clone https://github.com/medizininformatik-initiative/fdpg-query-data-validation.git``` <br />
+Navigate into the project directory: `cd /opt/fdpg-query-data-validation` <br />
+Checkout the version (git tag) of the fdpg-query-data-validation you would like to install: `git checkout tags/<your-tag-name-here>` <br />
 
-3. **Move into the project directory.** You can do this bei either opening the folder and starting a new command prompt
-   from there or by running ```cd fdpg-query-data-validation``` in the command prompt you used in the previous step.
-4. **Adjust the environment variables such that they fit the environment you want to run the validation tool in.** If
-   the default ports used for the components of this are not blocked by other services, you will likely only have to 
-   adjust the **FHIR_SERVER_URL** variable and (depending on your security setup) have to set values for the variables
-   needed for your method of authentication. Refer to the **Configuration section for more details**.
-5. **Download required value sets and code systems from [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453) and drop the extracted files into the value_sets
-   directory.** They are necessary for the validation and have to be provided.
-6. **For starting up the validation process you can now run**
-   ```sh startup_and_run.sh``` 
-   **in your command prompt.** If you want to restart the process after running it once already you can just run 
-   ```sh run.sh```
-   which will only restart the extraction script and not all other services. Conversely, if you want to shutdown the
-   services used during validation you can simply run
-   ```sh shutdown.sh```
-   which will take care of the remaining services.
+### Step 3 - Initialise .env files
+The fdpg-query-data-validation requires an .env file for the docker-compose setup. If you are setting up the project new and have not done so yet execute the `initialise-env-file.sh`.
 
+If you have set up the tool before compare the .env to the .env.default env files of each component and copy the additional params as appropriate
+
+### Step 4 - Configure your validation tool
+
+This project will perform an extraction and validation script against an existing FHIR Server running in an Docker Project-Context. If you don't have a FHIR server set up already. Follow the guidance in the **Deploying a FHIR server** section.
+Change the following enviroment variables to match the configuration of the FHIR Server /.env according to the paragraph **Configuration of this README:
+
+- FHIR_SERVER_URL
+- PROJECT_CONTEXT
+
+### Step 5 Download required value sets
+
+The required ValueSets for the validation are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453) 
+Upload the value_sets_*.zip file to your server, unpack it and copy the ValueSets files to your value_sets folder
+
+```bash
+sudo -s
+mkdir /<path>/<to>/<downloaded>/<ValueSet>
+cd /<path>/<to>/<downloaded>/<ValueSet>
+unzip value_sets_*.zip
+cd value_sets
+cp * /opt/fdpg-query-data-validation/value_sets
+```     
+
+### Step 6 Startup
+To start the validaiton process run: `sh startup_and_run.sh`
+This will perform an initial setup which takes about 5 minutes and performs 1 validation run.
+The report is available at REPORT_LOCATION
+
+If you want to rerun the validation process run: `sh run.sh`
+
+To stop all container run: `sh shutdown.sh`
+
+    
 ### Deploying a FHIR server
 Before deploying this tool you need some FHIR server to which request can be made. This example will use
 the [Blaze FHIR server](https://github.com/samply/blaze) which you can easily deploy using Docker with
@@ -69,26 +94,27 @@ to upload the data.
 ## Configuration
 The environment variables can be configured in the **.env** file.
 
-|             Key              |                                                                                                          Value                                                                                                           |
-|:----------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|       **SERVICE_PORT**       |                                                                               Port on which the service can be accessed as described above                                                                               |
-|        **BLAZE_PORT**        |                                                                              Port on which the Blaze FHIR server can be accessed externally                                                                              |
-|      **VALIDATOR_PORT**      |                                                                           Port on which the FHIR Marshal validator can be accessed externally                                                                            |
-| **TERMINOLOGY_SERVICE_PORT** |                                                                                  Port of the terminology service used during validation                                                                                  |
-|         **PACKAGES**         | String containing packages to load into the Blaze FHIR server and provide the necessary StructureDefinition instances for validation from [Simplifier](https://simplifier.net/). By default the KDS profiles are loaded  |
-|     **FHIR_SERVER_URL**      |                                                                      URL of the FHIR server from which the data that will be validated is obtained                                                                       |
-|     **PROJECT_CONTEXT**      |                                                                   The context in which both this tool and your FHIR server (data source) have to run.                                                                    |
-|          **TOTAL**           |                                    Total number of instances for each relevant resource type (and unique LOINC code for Observation instances) which are pulled from the FHIR server                                     |
-|          **COUNT**           |                                                                   Number of instances of a single page while paging through request to the FHIR server                                                                   |
-|     **REPORT_LOCATION**      |                                                               Location on the machine where you can find the generated reports after successful execution                                                                |
-|      **FHIR_USERNAME**       |                                                                               User name for authentication via BasicAuth and OAuth if used                                                                               |
-|      **FHIR_PASSWORD**       |                                                                               Password for authentication via BasicAuth and OAuth if used                                                                                |
-|        **FHIR_TOKEN**        |                                                                                               Token used for OAuth if used                                                                                               |
-|        **HTTP_PROXY**        |                                                                                             URL of HTTP proxy server if used                                                                                             |
-|       **HTTPS_PROXY**        |                                                                                            URL of HTTPS proxy server if used                                                                                             |
-|       **CA_FILE_NAME**       |                                            File name of certificate file you can place into the **certificates** directory and want to use for authentication if you require                                             |
-|  **FHIR_PROFILE_DIRECTORY**  |      Location of all the additional FHIR StructureDefinition instances you might want to use to validate again. Alternatively you can just drop them into the default location instead of providing a path to them       |
-|   **VALUE_SET_DIRECTORY**    | Location of the **expanded** ValueSet instances you might require if you want to validate against your own profiles. Alternatively you can just drop them into the default location instead of providing a path to them. |
+|             Key              |  Default |                                                                                                        Value                                                                                                           |
+|:----------------------------:|:-------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|       **VALIDATION_MAPPING_PORT**       |                      8092                 |                                                        Port on which the service can be accessed as described above                                                          |
+|        **STRUCTURE_DEFINITION_SERVER_PORT**        |             8090                          |                                      Port on which the Blaze FHIR server can be accessed externally                                                                              |
+|      **FHIR_DATA_VALIDATOR_PORT**      |                    8091                   |                                    Port on which the FHIR Marshal validator can be accessed externally                                                                            |
+| **TERMINOLOGY_SERVICE_PORT** |                   8093                   |                                            Port of the terminology service used during validation                                                                                  |
+|         **PACKAGES**         |                   "de.medizininformatikinitiative.kerndatensatz.laborbefund@1.0.7-alpha1 de.medizininformatikinitiative.kerndatensatz.person@2.0.0-ballot2 de.medizininformatikinitiative.kerndatensatz.diagnose@2.0.0-alpha3 de.medizininformatikinitiative.kerndatensatz.medikation@1.0.11 de.medizininformatikinitiative.kerndatensatz.prozedur@2.0.0-alpha5 de.medizininformatikinitiative.kerndatensatz.biobank@1.0.3"                     | String containing packages to load into the Blaze FHIR server and provide the necessary StructureDefinition instances for validation from [Simplifier](https://simplifier.net/). By default the KDS profiles are loaded  |
+|     **FHIR_SERVER_URL**      |                 "http://fhir-server:8080/fhir"                       |                              URL of the FHIR server from which the data that will be validated is obtained                                                                       |
+|     **PROJECT_CONTEXT**      |                    feasibility-deploy                     |                          The context in which both this tool and your FHIR server (data source) have to run.                                                                    |
+|          **TOTAL**           |                  500                 | Total number of instances for each relevant resource type (and unique LOINC code for Observation instances) which are pulled from the FHIR server                                     |
+|          **COUNT**           |                    500                |                               Number of instances of a single page while paging through request to the FHIR server                                                                   |
+|     **REPORT_LOCATION**      |                   "./report"                  |                          Location on the machine where you can find the generated reports after successful execution                                                                |
+|      **FHIR_USERNAME**       |                                      |                                         User name for authentication via BasicAuth and OAuth if used                                                                               |
+|      **FHIR_PASSWORD**       |                                      |                                         Password for authentication via BasicAuth and OAuth if used                                                                                |
+|        **FHIR_TOKEN**        |                                       |                                                        Token used for OAuth if used                                                                                               |
+|        **HTTP_PROXY**        |                                        |                                                     URL of HTTP proxy server if used                                                                                             |
+|       **HTTPS_PROXY**        |                                         |                                                   URL of HTTPS proxy server if used                                                                                             |
+|       **CA_FILE_NAME**       |                                       |     File name of certificate file you can place into the **certificates** directory and want to use for authentication if you require                                             |
+|  **FHIR_PROFILE_DIRECTORY**  |               "./fhir_profiles"                  |       Location of all the additional FHIR StructureDefinition instances you might want to use to validate again. |
+|   **VALUE_SET_DIRECTORY**    |                  "./value_sets"               |   Location of the **expanded** ValueSet instances you might require if you want to validate against your own profiles.|
+|   **VALIDATION_MAPPING_DIRECTORY**    |                  "./value_sets"               |   Location of the Mapping json |
 
 ## Architecture
 This validation tool consists out of multiple components each of which is serving a unique purpose. Upon startup, the 

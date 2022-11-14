@@ -67,8 +67,7 @@ example you would thus run
 to upload the data.
 
 ## Configuration
-The host ports of the 4 containers can be changed manually in the **.env** file located in the project
-root.
+The environment variables can be configured in the **.env** file.
 
 |             Key              |                                                                                                          Value                                                                                                           |
 |:----------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|

@@ -3,6 +3,7 @@
 
 test.py
 .idea
+.env
 /api/terminology_data/*.json
 /value_sets/
 

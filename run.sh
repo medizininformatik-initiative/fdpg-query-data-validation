@@ -1,4 +1,5 @@
 #!/bin/bash
+sh initialize-env-file.sh
 export "$(cat .env | xargs)"
 REPORT_LOCATION:-${REPORT_LOCATION}
 echo "Running test script"

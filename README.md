@@ -49,6 +49,14 @@ cp * /opt/fdpg-query-data-validation/value_sets
 cd /opt/fdpg-query-data-validation
 ```     
 
+If you are running this on a **Linux** machine you will need to grant read/write permissions for the directory in which
+you want the generated reports to end up. By the default, the location would be **/opt/fdpg-query-data-validation/report**.
+
+```bash
+chown -R 1000:1000 /<path>/<to>/<reports>
+chmod -R u=rwx /<path>/<to>/<reports>
+```
+
 ### Step 6 Startup
 To start the validaiton process run: `bash startup_and_run.sh`
 This will perform an initial setup which takes about 5 minutes and performs 1 validation run.

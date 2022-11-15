@@ -1,4 +1,5 @@
 #!/bin/bash
+export $(grep -v '^#' .env | xargs)
 CA_FILE=${CA_FILE}
 FHIR_SERVER_URL=${FHIR_SERVER_URL:-"http://localhost:8080/fhir"}
 TOTAL=${TOTAL:-500}
@@ -9,6 +10,8 @@ FHIR_PASSWORD=${FHIR_PASSWORD:-""}
 FHIR_TOKEN=${FHIR_TOKEN}
 HTTP_PROXY=${HTTP_PROXY}
 HTTPS_PROXY=${HTTPS_PROXY}
+
+echo ${FHIR_SERVER_URL}
 
 if [ -f "certificates/$CA_FILE_NAME" ]; then
     echo "Using certificate $CA_FILE_NAME"

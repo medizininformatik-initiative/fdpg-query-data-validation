@@ -76,7 +76,7 @@ the following commands:
 
 ```docker volume create blaze-data```
 
-```docker run -d --net=feasibility-deploy_default -p 8080:8080 -v blaze-data samply/blaze:0.18```
+```docker run -d --net=feasibility-deploy_default -p 8080:8080 -v blaze-data -e BASE_URL=http://feasibility-deploy-fhir-server-1:8080 samply/blaze:0.18```
 
 **NOTE:** Further documentation can be found [here](https://github.com/samply/blaze/blob/master/docs/deployment/docker-deployment.md)
 **NOTE:** If you adjust the network name via the environment variable **PROJECT_CONTEXT** the network name would change

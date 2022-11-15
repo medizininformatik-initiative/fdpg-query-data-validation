@@ -1,7 +1,7 @@
 #!/bin/bash
 sh initialize-env-file.sh
 export $(grep -v '^#' .env | xargs)
-docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} -f docker-compose-validation.yml up -d
+docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} --env-file .env -f docker-compose-validation.yml up -d
 for i in {0..101}
 do
   if [ "$i" -eq 101 ]
@@ -21,7 +21,7 @@ do
 done
 echo "FHIR Marshal successfully started"
 echo "Starting Validation Profile Mapper"
-docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} -f docker-compose-vms.yml up -d
+docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} --env-file .env -f docker-compose-vms.yml up -d
 for i in {0..101}
 do
   if [ "$i" -eq 101 ]
@@ -42,5 +42,5 @@ done
 echo "Validation Profile Mapper successfully started"
 REPORT_LOCATION:-${REPORT_LOCATION}
 echo "Running test script"
-docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} -f docker-compose-extraction.yml up
+docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} --env-file .env -f docker-compose-extraction.yml up
 echo "Tests concluded. Generated file can be found under ${REPORT_LOCATION}"

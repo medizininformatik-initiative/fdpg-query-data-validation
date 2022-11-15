@@ -1,6 +1,6 @@
 #!/bin/bash
 
-envfiles=( ".env")
+envfiles=(".env")
 
 for file in "${envfiles[@]}"
 do

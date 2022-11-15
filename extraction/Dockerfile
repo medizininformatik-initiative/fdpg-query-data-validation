@@ -14,7 +14,6 @@ ENV HTTPS_PROXY: ${HTTPS_PROXY}
 ENV CA_FILE_NAME: ""
 
 COPY . /app
-RUN echo ${FHIR_SERVER_URL}
 
 # RUN useradd -r -s /bin/false -u 10001 10001
 RUN chown -R 1000:1000 app/report

@@ -743,7 +743,8 @@
 		"2132-9": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/VitaminB12",
 		"1989-3": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/VitaminD3,25-Hydroxy-",
 		"8245-3": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Zinc[Mass-volume]inBlood",
-		"5763-8": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Zink"
+		"5763-8": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Zink",
+		"default": "https://example.org/fhir/StructureDefinition/FDPG_Observation_Default"
 	},
     "Medication": "https://example.org/fhir/StructureDefinition/ABIDE_Medication_ATCde",
     "MedicationAdministration": "https://example.org/fhir/StructureDefinition/ABIDE_MedicationAdministration_ATCde",

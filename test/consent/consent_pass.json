@@ -1,0 +1,475 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "http://blaze-test-server:8080/fhir/Consent/Polar-WP1.1-00001-CO-1",
+            "resource": {
+                "patient": {
+                    "reference": "Patient/Polar-WP1.1-00001"
+                },
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "59284-0"
+                            }
+                        ]
+                    }
+                ],
+                "provision": {
+                    "provision": [
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.2",
+                                            "display": "IDAT_erheben"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.3",
+                                            "display": "IDAT_speichern_verarbeiten"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.4",
+                                            "display": "IDAT_zusammenfuehren_Dritte"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.5",
+                                            "display": "IDAT_bereitstellen_EU_DSGVO_NIVEAU"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.6",
+                                            "display": "MDAT_erheben"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2023-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.7",
+                                            "display": "MDAT_speichern_verarbeiten"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.8",
+                                            "display": "MDAT_wissenschaftlich_nutzen_EU_DSGVO_NIVEAU"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.9",
+                                            "display": "MDAT_zusammenfuehren_Dritte"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.37",
+                                            "display": "Rekontaktierung_Ergebnisse_erheblicher_Bedeutung"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.19",
+                                            "display": "BIOMAT_erheben"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2023-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.20",
+                                            "display": "BIOMAT_lagern_verarbeiten"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.21",
+                                            "display": "BIOMAT_Eigentum_uebertragen"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2023-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.22",
+                                            "display": "BIOMAT_wissenschaftlich_nutzen_EU_DSGVO_NIVEAU"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.23",
+                                            "display": "BIOMAT_Analysedaten_zusammenfuehren_Dritte"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.25",
+                                            "display": "BIOMAT_Zusatzmengen_entnehmen"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2023-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.11",
+                                            "display": "KKDAT_5J_retro_uebertragen"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2014-01-03T00:00:00+01:00",
+                                "end": "2019-01-01T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.12",
+                                            "display": "KKDAT_5J_retro_speichern_verarbeiten"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.13",
+                                            "display": "KKDAT_5J_retro_wissenschaftlich_nutzen"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.38",
+                                            "display": "KKDAT_5J_retro_uebertragen_KVNR"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2019-01-01T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.15",
+                                            "display": "KKDAT_5J_pro_uebertragen"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2023-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.16",
+                                            "display": "KKDAT_5J_pro_speichern_verarbeiten"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.17",
+                                            "display": "KKDAT_5J_pro_wissenschaftlich_nutzen"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2048-12-31T00:00:00+01:00"
+                            }
+                        },
+                        {
+                            "type": "permit",
+                            "code": [
+                                {
+                                    "coding": [
+                                        {
+                                            "system": "urn:oid:2.16.840.1.113883.3.1937.777.24.5.3",
+                                            "code": "2.16.840.1.113883.3.1937.777.24.5.3.39",
+                                            "display": "KKDAT_5J_pro_uebertragen_KVNR"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "period": {
+                                "start": "2019-01-01T00:00:00+01:00",
+                                "end": "2023-12-31T00:00:00+01:00"
+                            }
+                        }
+                    ],
+                    "type": "deny",
+                    "period": {
+                        "start": "2019-01-01T00:00:00+01:00",
+                        "end": "2048-12-31T00:00:00+01:00"
+                    }
+                },
+                "meta": {
+                    "versionId": "2",
+                    "lastUpdated": "2022-11-15T21:30:17.719Z",
+                    "profile": [
+                        "http://fhir.de/ConsentManagement/StructureDefinition/Consent"
+                    ]
+                },
+                "resourceType": "Consent",
+                "scope": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/consentscope",
+                            "code": "research"
+                        }
+                    ]
+                },
+                "policy": [
+                    {
+                        "uri": "https://www.medizininformatik-initiative.de/sites/default/files/2020-04/MII_AG-Consent_Einheitlicher-Mustertext_v1.6d.pdf"
+                    }
+                ],
+                "dateTime": "2019-01-01T00:00:00+01:00",
+                "status": "active",
+                "id": "Polar-WP1.1-00001-CO-1"
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Condition/Polar-WP1.1-16501-CD-2"
+            }
+        }
+    ]
+}

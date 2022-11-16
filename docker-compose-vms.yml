@@ -4,7 +4,7 @@ services:
     image: "ghcr.io/itcr-uni-luebeck/validation-profile-mapper:0.1.7-RC"
     environment:
       SERVICE_PORT: "8082"
-      VALIDATOR_URL: "http://fhir-data-validator:8081/validate"
+      VALIDATOR_URL: "http://feasibility-deploy-fhir-data-validator-1:8081/validate"
     volumes:
       - ${VALIDATION_MAPPING_DIRECTORY:-./maps}:/app/maps
     ports:

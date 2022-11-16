@@ -1,0 +1,89 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "http://blaze-test-server:8080/fhir/Observation/Polar-WP-Mix-014-E-1-OL-1",
+            "resource": {
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "laboratory",
+                                "display": "Laboratory"
+                            },
+                            {
+                                "system": "http://loinc.org",
+                                "code": "26436-6",
+                                "display": "Laboratory studies (set)"
+                            }
+                        ]
+                    }
+                ],
+                "meta": {
+                    "versionId": "16915",
+                    "lastUpdated": "2022-11-15T21:30:59.628Z",
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-labor/StructureDefinition/ObservationLab"
+                    ]
+                },
+                "encounter": {
+                    "reference": "Encounter/Polar-WP-Mix-014-E-1"
+                },
+                "valueQuantity": {
+                    "value": 222.2,
+                    "unit": "milliliter per minute",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mL/min"
+                },
+                "resourceType": "Observation",
+                "effectiveDateTime": "2020-07-09T00:00:00+02:00",
+                "status": "final",
+                "id": "Polar-WP-Mix-014-E-1-OL-1",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "70969-1"
+                        }
+                    ],
+                    "text": "GFR"
+                },
+                "identifier": [
+                    {
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                    "code": "OBI"
+                                }
+                            ]
+                        },
+                        "system": "https://POLARWPMIX.de/befund",
+                        "value": "Polar-WP-Mix-014-E-1-OL-1",
+                        "assigner": {
+                            "identifier": {
+                                "system": "https://www.medizininformatik-initiative.de/fhir/core/NamingSystem/org-identifier",
+                                "value": "POLARWPMIX"
+                            }
+                        }
+                    }
+                ],
+                "subject": {
+                    "reference": "Patient/Polar-WP-Mix-014"
+                }
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Condition/Polar-WP1.1-16501-CD-2"
+            }
+        }
+    ]
+}
+    ]
+}

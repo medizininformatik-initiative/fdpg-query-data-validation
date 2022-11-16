@@ -1,0 +1,76 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "Condition/Polar-WP1.1-16501-CD-1",
+            "resource": {
+                "resourceType": "Condition",
+                "id": "Polar-WP1.1-16501-CD-1",
+                "meta": {
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "value": "Polar-WP1.1-16501-CD-1"
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://fhir.de/CodeSystem/bfarm/icd-10-gm",
+                            "version": "2020",
+                            "code": "M80.00"
+                        }
+                    ],
+                    "text": "Osteroporose"
+                },
+                "subject": {
+                    "reference": "Patient/Polar-WP1.1-16501"
+                },
+                "recordedDate": "2019-01-01T00:00:00+01:00"
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Condition/Polar-WP1.1-16501-CD-1"
+            }
+        },
+        {
+            "fullUrl": "Condition/Polar-WP1.1-16501-CD-2",
+            "resource": {
+                "resourceType": "Condition",
+                "id": "Polar-WP1.1-16501-CD-2",
+                "meta": {
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "value": "Polar-WP1.1-16501-CD-2"
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://fhir.de/CodeSystem/bfarm/icd-10-gm",
+                            "version": "2020",
+                            "code": "S02.0"
+                        }
+                    ],
+                    "text": "Sturz"
+                },
+                "subject": {
+                    "reference": "Patient/Polar-WP1.1-16501"
+                },
+                "recordedDate": "2019-01-01T00:00:00+01:00"
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Condition/Polar-WP1.1-16501-CD-2"
+            }
+        }
+    ]
+}

@@ -1,5 +1,5 @@
 {
-    "Condition": "https://example.org/fhir/StructureDefinition/ABIDE_Condition_SNOMEDCT",
+    "Condition": "https://example.org/fhir/StructureDefinition/ABIDE_Condition_ICD10-GM",
     "Observation": {
 		"30413-9": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Abnormallymphocytes-100leukocytesinBlood",
 		"29261-5": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Abnormallymphocytes-100leukocytesinBloodbyManualcount",

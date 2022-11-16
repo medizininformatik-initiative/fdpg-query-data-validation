@@ -3,10 +3,6 @@
     "type": "transaction",
     "entry": [
         {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-        {
             "fullUrl": "http://blaze-test-server:8080/fhir/Observation/Polar-WP-Mix-014-E-1-OL-1",
             "resource": {
                 "category": [
@@ -83,7 +79,5 @@
                 "url": "Condition/Polar-WP1.1-16501-CD-2"
             }
         }
-    ]
-}
     ]
 }

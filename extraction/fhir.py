@@ -50,7 +50,7 @@ class PagingResult:
 
     def __init__(self, bundle, max_cnt=sys.maxsize, headers=None, auth=None, cert=None):
         self.__current_page = bundle
-        self.__total = bundle.get('total', bundle.get('entry', 0))
+        self.__total = bundle.get('total', 0)
         self.__next_url = get_next_url(bundle)
         self.__max_cnt = max_cnt
         self.__current_cnt = 0

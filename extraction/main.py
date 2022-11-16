@@ -43,7 +43,11 @@ def make_bundle(bundles):
 
 
 def simple_test(data, v_url, content_type):
+    data_json = json.loads(data)
     response = requests.post(url=v_url, data=data, headers={"Content-Type": content_type})
+    if data_json['entry'][0]['resourc']['resourceType'] == 'Medication':
+        print("MEDICATION RESPONSE:")
+        print(response)
     if response.status_code == 200:
         return json.loads(response.text)
     else:
@@ -137,6 +141,8 @@ def run_test(client, total, count, v_url):
                 general_issues['issue'].extend(general)
             raw_report[resource_type] = obs_reports
         else:
+            if resource_type == 'Medication':
+                print("MEDICATION")
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
             general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url, "application/json")
             raw_report[resource_type] = mapped_issues
@@ -150,6 +156,8 @@ def run_test(client, total, count, v_url):
 
 # Returns issues grouped by the instance ID
 def run_total_tests(resource_type, parameters, total, v_url, content_type):
+    if resource_type == 'Medication':
+        print("MEDICATION run_total_tests")
     general_issues = list()
     mapped_issues = dict()
     error_issues = list()
@@ -160,7 +168,7 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
         general_issues.append(generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
         parameters.pop('_profile', None)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
-    if paging_result.get_total() == 0:
+    elif paging_result.get_total() == 0:
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         msg = f"No matches found for {resource_type}?{param_string}"
         print(msg)
@@ -170,6 +178,7 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
         for idx, bundle in enumerate(paging_result):
             print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b', flush=True)
             try:
+                print("MEDICATION before simple_test")
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
                 mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
             except Exception as e:

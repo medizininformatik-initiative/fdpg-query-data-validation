@@ -43,11 +43,7 @@ def make_bundle(bundles):
 
 
 def simple_test(data, v_url, content_type):
-    data_json = json.loads(data)
     response = requests.post(url=v_url, data=data, headers={"Content-Type": content_type})
-    if data_json['entry'][0]['resourc']['resourceType'] == 'Medication':
-        print("MEDICATION RESPONSE:")
-        print(response)
     if response.status_code == 200:
         return json.loads(response.text)
     else:

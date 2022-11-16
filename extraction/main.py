@@ -166,6 +166,7 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
         print(msg)
         general_issues.append(generate_issue("warning", "processing", msg))
     else:
+        print(f"Found {paging_result.get_total()} for {resource_type}")
         for idx, bundle in enumerate(paging_result):
             print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b', flush=True)
             try:

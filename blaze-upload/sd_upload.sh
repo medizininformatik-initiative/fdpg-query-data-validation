@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Uploading profiles from Simplifier to Blaze@${BLAZE_SERVER_URL}"
 echo "python -m fhir_populator --endpoint ${BLAZE_SERVER_URL} --get-dependencies --non-interactive --only-put --package ${PACKAGES}"
-echo "$(python -m fhir_populator --endpoint ${BLAZE_SERVER_URL} --get-dependencies --non-interactive --only-put --package ${PACKAGES})"
+echo "$(python -m fhir_populator --endpoint ${BLAZE_SERVER_URL} --get-dependencies --non-interactive --only-put --package "${PACKAGES}")"
 echo "Uploading own StructureDefinition instances to Blaze@${BALZE_SERVER_URL}"
 for file in -exec $(find ./fhir_profiles -name '*.json')
 do

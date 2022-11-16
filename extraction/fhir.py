@@ -57,20 +57,25 @@ class PagingResult:
         self.__headers = headers
         self.__auth = auth
         self.__cert = cert
+        self.__stop = False
 
     def __iter__(self):
         return self
 
     def __next__(self):
+        # TODO: Implement better version of PagingResult which takes to initial request instead of the first bundle to
+        # TODO: avoid convoluted condition checking
+        if self.__stop:
+            raise StopIteration
         self.__next_url = get_next_url(self.__current_page)
+        bundle = self.__current_page
         if self.__next_url is not None and self.__current_cnt < self.__max_cnt:
-            bundle = self.__current_page
             print(f"Requesting: {self.__next_url}")
             self.__current_page = json.loads(requests.get(self.__next_url, headers=self.__headers, auth=self.__auth, verify=self.__cert).text)
             self.__current_cnt += len(bundle.get('entry', []))
-            return bundle
         else:
-            raise StopIteration
+            self.__stop = True
+        return bundle
 
     def get_total(self):
         return self.__total

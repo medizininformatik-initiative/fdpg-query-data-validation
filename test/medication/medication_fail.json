@@ -1,0 +1,70 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "http://blaze-test-server:8080/fhir/Medication/Medication--1014809553",
+            "resource": {
+                "meta": {
+                    "versionId": "16926",
+                    "lastUpdated": "2022-11-16T08:24:17.392Z",
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/Medication"
+                    ]
+                },
+                "resourceType": "Medication",
+                "ingredient": [
+                    {
+                        "strength": {
+                            "numerator": {
+                                "value": 100,
+                                "unit": "milligram",
+                                "system": "http://unitsofmeasure.org",
+                                "code": "mg"
+                            },
+                            "denominator": {
+                                "value": 1,
+                                "system": "http://XXX",
+                                "code": "Tabletten"
+                            }
+                        },
+                        "itemCodeableConcept": {
+                            "coding": [
+                                {
+                                    "system": "http://fhir.de/CodeSystem/ask",
+                                    "_code": {
+                                        "extension": [
+                                            {
+                                                "url": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                                                "valueCode": "unknown"
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "id": "Medication--1014809553",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://fhir.de/CodeSystem/ifa/pzn",
+                            "code": "06136551"
+                        }
+                    ],
+                    "text": "Amphotericin B"
+                },
+                "identifier": [
+                    {
+                        "value": "Medication--1014809553"
+                    }
+                ]
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Observation/Polar-WP-Mix-014-E-1-OL-1"
+            }
+        }
+    ]
+}

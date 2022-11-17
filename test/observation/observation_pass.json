@@ -1,0 +1,155 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "Observation/Polar-WP-Mix-014-E-1-OL-1",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "Polar-WP-Mix-014-E-1-OL-1",
+                "meta": {
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-labor/StructureDefinition/ObservationLab"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                    "code": "OBI"
+                                }
+                            ]
+                        },
+                        "system": "https://POLARWPMIX.de/befund",
+                        "value": "Polar-WP-Mix-014-E-1-OL-1",
+                        "assigner": {
+                            "identifier": {
+                                "system": "https://www.medizininformatik-initiative.de/fhir/core/NamingSystem/org-identifier",
+                                "value": "POLARWPMIX"
+                            }
+                        }
+                    }
+                ],
+                "status": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "laboratory",
+                                "display": "Laboratory"
+                            },
+                            {
+                                "system": "http://loinc.org",
+                                "code": "26436-6",
+                                "display": "Laboratory studies (set)"
+                            }
+                        ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "2955-3"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/Polar-WP-Mix-014"
+                },
+                "encounter": {
+                    "reference": "Encounter/Polar-WP-Mix-014-E-1"
+                },
+                "effectiveDateTime": "2020-07-09T00:00:00+02:00",
+                "valueQuantity": {
+                    "value": 40.5,
+                    "unit": "millimol per Liter",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mmol/L"
+                }
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Observation/Polar-WP-Mix-014-E-1-OL-1"
+            }
+        },
+        {
+            "fullUrl": "Observation/Polar-WP-Mix-014-E-1-OL-2",
+            "resource": {
+                "resourceType": "Observation",
+                "id": "Polar-WP-Mix-014-E-1-OL-2",
+                "meta": {
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-labor/StructureDefinition/ObservationLab"
+                    ]
+                },
+                "identifier": [
+                    {
+                        "type": {
+                            "coding": [
+                                {
+                                    "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                    "code": "OBI"
+                                }
+                            ]
+                        },
+                        "system": "https://POLARWPMIX.de/befund",
+                        "value": "Polar-WP-Mix-014-E-1-OL-2",
+                        "assigner": {
+                            "identifier": {
+                                "system": "https://www.medizininformatik-initiative.de/fhir/core/NamingSystem/org-identifier",
+                                "value": "POLARWPMIX"
+                            }
+                        }
+                    }
+                ],
+                "status": "final",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                                "code": "laboratory",
+                                "display": "Laboratory"
+                            },
+                            {
+                                "system": "http://loinc.org",
+                                "code": "26436-6",
+                                "display": "Laboratory studies (set)"
+                            }
+                        ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://loinc.org",
+                            "code": "70969-1"
+                        }
+                    ],
+                    "text": "GFR"
+                },
+                "subject": {
+                    "reference": "Patient/Polar-WP-Mix-014"
+                },
+                "encounter": {
+                    "reference": "Encounter/Polar-WP-Mix-014-E-1"
+                },
+                "effectiveDateTime": "2020-07-10T00:00:00+02:00",
+                "valueQuantity": {
+                    "value": 111.1,
+                    "unit": "milliliter per minute",
+                    "system": "http://unitsofmeasure.org",
+                    "code": "mL/min"
+                }
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Observation/Polar-WP-Mix-014-E-1-OL-2"
+            }
+        }
+    ]
+}

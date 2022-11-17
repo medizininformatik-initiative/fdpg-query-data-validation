@@ -10,6 +10,7 @@ from fhir import FHIRClient
 
 cert_dir = 'certificates'
 
+
 def configure_argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('url', action='store', help="URL of the FHIR server from which to pull the data")
@@ -96,14 +97,15 @@ def generate_issue(severity, type, diagnostics):
             "type": type,
             "diagnostics": diagnostics}
 
+
 test_type = {"Condition": simple_test,
-             "Observation": observation_test,
-             "Medication": simple_test,
-             "MedicationAdministration": simple_test,
-             "MedicationStatement": simple_test,
-             "Procedure": simple_test,
-             "Specimen": simple_test,
-             "Consent": simple_test}
+             "Observation": observation_test}
+             # "Medication": simple_test,
+             # "MedicationAdministration": simple_test,
+             # "MedicationStatement": simple_test,
+             # "Procedure": simple_test,
+             # "Specimen": simple_test,
+             # "Consent": simple_test}
 
 type_profiles = {
     "Condition": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose",
@@ -131,7 +133,8 @@ def run_test(client, total, count, v_url):
             for obs_code, _ in val_mapping['Observation'].items():
                 search_string = f"http://loinc.org|{obs_code}"
                 parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
-                general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url, "application/json")
+                general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url,
+                                                                 "application/json")
                 obs_reports[obs_code] = mapped_issues
                 error_issues['issue'].extend(errors)
                 general_issues['issue'].extend(general)
@@ -140,7 +143,8 @@ def run_test(client, total, count, v_url):
             if resource_type == 'Medication':
                 print("MEDICATION")
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
-            general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url, "application/json")
+            general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url,
+                                                             "application/json")
             raw_report[resource_type] = mapped_issues
             error_issues['issue'].extend(errors)
             general_issues['issue'].extend(general)
@@ -161,7 +165,8 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
     if paging_result.get_total() == 0:
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         print(f"Excluding profile constraint for {resource_type}?{param_string} since no data matches it")
-        general_issues.append(generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
+        general_issues.append(
+            generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
         parameters.pop('_profile', None)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
     elif paging_result.get_total() == 0:
@@ -172,7 +177,8 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
     else:
         print(f"Found {paging_result.get_total()} for {resource_type}")
         for idx, bundle in enumerate(paging_result):
-            print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b', flush=True)
+            print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b',
+                  flush=True)
             try:
                 print("MEDICATION before simple_test")
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)

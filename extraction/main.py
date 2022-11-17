@@ -101,13 +101,13 @@ def generate_issue(severity, issue_type, diagnostics):
 
 
 test_type = {"Condition": simple_test,
-             "Observation": observation_test}
-# "Medication": simple_test,
-# "MedicationAdministration": simple_test,
-# "MedicationStatement": simple_test,
-# "Procedure": simple_test,
-# "Specimen": simple_test,
-# "Consent": simple_test}
+             "Observation": observation_test,
+             "Medication": simple_test,
+             "MedicationAdministration": simple_test,
+             "MedicationStatement": simple_test,
+             "Procedure": simple_test,
+             "Specimen": simple_test,
+             "Consent": simple_test}
 
 type_profiles = {
     "Condition": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose",

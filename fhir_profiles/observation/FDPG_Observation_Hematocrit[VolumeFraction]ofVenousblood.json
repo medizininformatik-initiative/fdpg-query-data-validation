@@ -39,7 +39,7 @@
                 "max": "*",
                 "patternCoding": {
                     "system": "http://loinc.org",
-                    "code": "1"
+                    "code": "41654-5"
                 }
             },
             {
@@ -106,5 +106,5 @@
             }
         ]
     },
-    "id": "2d336d1e-d5aa-42d9-b61e-98859a10e86a"
+    "id": "585af8dc-750d-4d5d-8af6-abf9a84d6e54"
 }

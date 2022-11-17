@@ -73,38 +73,19 @@
                 "mustSupport": true
             },
             {
-                "id": "Observation.valueQuantity",
-                "path": "Observation.valueQuantity",
-                "min": 1,
-                "max": "1"
-            },
-            {
-                "id": "Observation.valueQuantity.value",
-                "path": "Observation.valueQuantity.value",
-                "min": 1,
-                "mustSupport": true
-            },
-            {
-                "id": "Observation.valueQuantity.unit",
-                "path": "Observation.valueQuantity.unit",
-                "min": 1,
-                "mustSupport": true
-            },
-            {
-                "id": "Observation.valueQuantity.system",
-                "path": "Observation.valueQuantity.system",
-                "min": 1,
-                "patternUri": "http://unitsofmeasure.org",
-                "mustSupport": true
-            },
-            {
-                "id": "Observation.valueQuantity.code",
-                "path": "Observation.valueQuantity.code",
-                "min": 1,
-                "mustSupport": true,
-                "fixedCode": ""
+                "id": "Observation.value[x]:valueCodeableConcept",
+                "path": "Observation.value[x]",
+                "sliceName": "valueCodeableConcept",
+                "type": [
+                    {
+                        "code": "CodeableConcept"
+                    }
+                ],
+                "binding": {
+                    "strength": "required",
+                    "valueSet": "http://loinc.org/vs/LL2021-5"
+                }
             }
         ]
-    },
-    "id": "5d77153d-2921-4120-bc94-17a66f576201"
+    }
 }

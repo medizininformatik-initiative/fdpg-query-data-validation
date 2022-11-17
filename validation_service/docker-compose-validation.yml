@@ -21,7 +21,7 @@ services:
       BLAZE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       PACKAGES: "${SIMPLIFIER_PACKAGES}"
     volumes:
-      - ${FHIR_PROFILE_DIRECTORY:-./fhir_profiles}:/app/fhir_profiles
+      - ${FHIR_PROFILE_DIRECTORY:-../fhir_profiles}:/app/fhir_profiles
     depends_on:
       validation-structure-definition-server:
         condition: service_healthy
@@ -32,7 +32,7 @@ services:
     environment:
       TERMINOLOGY_SERVICE_PORT: 8083
     volumes:
-      - ${VALUE_SET_DIRECTORY:-./value_sets}:/app/value_sets
+      - ${VALUE_SET_DIRECTORY:-../value_sets}:/app/value_sets
     healthcheck:
       test: curl --fail http://validation-terminology-service:8083/fhir/metadata || exit 1
       interval: 5s

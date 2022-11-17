@@ -1,6 +1,6 @@
 #!/bin/bash
 sh initialize-env-file.sh
-export $(cat .env | xargs)
+export $(grep -v '^#' .env | xargs)
 docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} -f docker-compose-validation.yml up -d
 for i in {0..101}
 do

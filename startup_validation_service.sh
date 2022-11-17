@@ -1,7 +1,6 @@
 #!/bin/bash
-sh initialize-env-file.sh
-export "$(cat .env | xargs)"
-docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} -f docker-compose-validation.yml up -d
+export "$(grep -v '^#' .env | xargs)"
+docker-compose -p "${PROJECT_CONTEXT:-feasibility-deploy}" -f validation/adocker-compose-validation.yml up -d
 for i in {0..101}
 do
   if [ "$i" -eq 101 ]
@@ -21,7 +20,7 @@ do
 done
 echo "FHIR Marshal successfully started"
 echo "Starting Validation Profile Mapper"
-docker-compose -p ${PROJECT_CONTEXT:-feasibility-deploy} -f docker-compose-vms.yml up -d
+docker-compose -p "${PROJECT_CONTEXT:-feasibility-deploy}" -f validation_mapper_service/docker-compose-vms.yml up -d
 for i in {0..101}
 do
   if [ "$i" -eq 101 ]

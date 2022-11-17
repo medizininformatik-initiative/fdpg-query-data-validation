@@ -12,24 +12,26 @@ cert_dir = 'certificates'
 
 
 def configure_argparser():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('url', action='store', help="URL of the FHIR server from which to pull the data")
-    parser.add_argument('-u', '--user', help='basic auth user fhir server', nargs="?", default="")
-    parser.add_argument('-p', '--password', help='basic auth pw fhir server', nargs="?", default="")
-    parser.add_argument('-ft', '--fhir-token', help='token auth fhir server', nargs="?", default=None)
-    parser.add_argument('--http-proxy', help='http proxy url for your fhir server - None if not set here', nargs="?",
-                        default=None)
-    parser.add_argument('--https-proxy', help='https proxy url for your fhir server - None if not set here', nargs="?",
-                        default=None)
-    parser.add_argument('--cert', help='path to certificate file used to verify requests', nargs="?", default=None)
-    parser.add_argument('-t', '--total', action='store', default=500, type=int,
-                        help="Total amount of resource instances"
-                             " to pull for testing")
-    parser.add_argument('-c', '--count', action='store', default=100, type=int, help="Amount of resource instances to "
-                                                                                     "pull each request regarding page size")
-    parser.add_argument('-v', '--validation-endpoint', action='store', default='http://localhost:8082/validate',
-                        help='URL of the validation endpoint used for validating the data')
-    return parser
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('url', action='store', help="URL of the FHIR server from which to pull the data")
+    arg_parser.add_argument('-u', '--user', help='basic auth user fhir server', nargs="?", default="")
+    arg_parser.add_argument('-p', '--password', help='basic auth pw fhir server', nargs="?", default="")
+    arg_parser.add_argument('-ft', '--fhir-token', help='token auth fhir server', nargs="?", default=None)
+    arg_parser.add_argument('--http-proxy', help='http proxy url for your fhir server - None if not set here',
+                            nargs="?", default=None)
+    arg_parser.add_argument('--https-proxy', help='https proxy url for your fhir server - None if not set here',
+                            nargs="?",
+                            default=None)
+    arg_parser.add_argument('--cert', help='path to certificate file used to verify requests', nargs="?", default=None)
+    arg_parser.add_argument('-t', '--total', action='store', default=500, type=int,
+                            help="Total amount of resource instances"
+                                 " to pull for testing")
+    arg_parser.add_argument('-c', '--count', action='store', default=100, type=int,
+                            help="Amount of resource instances to "
+                                 "pull each request regarding page size")
+    arg_parser.add_argument('-v', '--validation-endpoint', action='store', default='http://localhost:8082/validate',
+                            help='URL of the validation endpoint used for validating the data')
+    return arg_parser
 
 
 def make_bundle(bundles):
@@ -59,8 +61,8 @@ def observation_test(data, v_url, content_type):
     for k, v in data.items():
         try:
             response = simple_test(v, v_url, content_type)
-        except Exception as e:
-            response = str(e)
+        except Exception as exception:
+            response = str(exception)
         results[k] = response
     return results
 
@@ -79,51 +81,56 @@ def map_issues_to_entry(bundle, op_outcome):
             # list is assumed to be contained in the second component of the FHIR path expression Form:
             # Bundle.entry[x]... where x is some number
             entry_idx = int(fhir_path.split('.')[1][6:-1])
-            id = id_index[entry_idx]
+            resource_id = id_index[entry_idx]
             issue_entry = {'issue': issue, 'element': get_issue_element(bundle, fhir_path)}
-            if id in id_issue_map:
-                id_issue_map[id].append(issue_entry)
+            if resource_id in id_issue_map:
+                id_issue_map[resource_id].append(issue_entry)
             else:
-                id_issue_map[id] = [issue_entry]
+                id_issue_map[resource_id] = [issue_entry]
     return id_issue_map
 
 
-def get_issue_element(bundle, fhir_path_expr):
+def get_issue_element(_bundle, _fhir_path_expr):
     return ""
 
 
-def generate_issue(severity, type, diagnostics):
+def generate_issue(severity, issue_type, diagnostics):
     return {"severity": severity,
-            "type": type,
+            "type": issue_type,
             "diagnostics": diagnostics}
 
 
 test_type = {"Condition": simple_test,
              "Observation": observation_test}
-             # "Medication": simple_test,
-             # "MedicationAdministration": simple_test,
-             # "MedicationStatement": simple_test,
-             # "Procedure": simple_test,
-             # "Specimen": simple_test,
-             # "Consent": simple_test}
+# "Medication": simple_test,
+# "MedicationAdministration": simple_test,
+# "MedicationStatement": simple_test,
+# "Procedure": simple_test,
+# "Specimen": simple_test,
+# "Consent": simple_test}
 
 type_profiles = {
     "Condition": "https://www.medizininformatik-initiative.de/fhir/core/modul-diagnose/StructureDefinition/Diagnose",
-    "Observation": "https://www.medizininformatik-initiative.de/fhir/core/modul-labor/StructureDefinition/ObservationLab",
-    "Medication": "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/Medication",
-    "MedicationAdministration": "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/MedicationAdministration",
-    "MedicationStatement": "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/MedicationStatement",
+    "Observation": "https://www.medizininformatik-initiative.de/fhir/core/modul-labor/StructureDefinition"
+                   "/ObservationLab",
+    "Medication": "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition"
+                  "/Medication",
+    "MedicationAdministration": "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation"
+                                "/StructureDefinition/MedicationAdministration",
+    "MedicationStatement": "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation"
+                           "/StructureDefinition/MedicationStatement",
     "Procedure": "https://www.medizininformatik-initiative.de/fhir/core/modul-prozedur/StructureDefinition/Procedure",
     "Specimen": "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/SpecimenCore",
-    "Consent": "https://www.medizininformatik-initiative.de/fhir/modul-consent/StructureDefinition/mii-pr-consent-einwilligung"}
+    "Consent": "https://www.medizininformatik-initiative.de/fhir/modul-consent/StructureDefinition/mii-pr-consent"
+               "-einwilligung"}
 
 
 def run_test(client, total, count, v_url):
     print(f"Running tests for the following resources : {', '.join(type_profiles.keys())}")
-    raw_report = dict()
+    report = dict()
     error_issues = {"issue": []}
     general_issues = {"issue": []}
-    aggregated_report = dict()
+    # aggregated_report = dict()
     for resource_type, test in test_type.items():
         print(f"Running tests for {resource_type}")
         # Fetch data from FHIR server
@@ -133,29 +140,29 @@ def run_test(client, total, count, v_url):
             for obs_code, _ in val_mapping['Observation'].items():
                 search_string = f"http://loinc.org|{obs_code}"
                 parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
-                general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url,
+                general, mapped_issues, errors = run_total_tests(client, resource_type, parameters, total, v_url,
                                                                  "application/json")
                 obs_reports[obs_code] = mapped_issues
                 error_issues['issue'].extend(errors)
                 general_issues['issue'].extend(general)
-            raw_report[resource_type] = obs_reports
+            report[resource_type] = obs_reports
         else:
             if resource_type == 'Medication':
                 print("MEDICATION")
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
-            general, mapped_issues, errors = run_total_tests(resource_type, parameters, total, v_url,
+            general, mapped_issues, errors = run_total_tests(client, resource_type, parameters, total, v_url,
                                                              "application/json")
-            raw_report[resource_type] = mapped_issues
+            report[resource_type] = mapped_issues
             error_issues['issue'].extend(errors)
             general_issues['issue'].extend(general)
-    raw_report['general'] = general_issues
-    raw_report['error'] = error_issues
+    report['general'] = general_issues
+    report['error'] = error_issues
     print("All done")
-    return raw_report
+    return report
 
 
 # Returns issues grouped by the instance ID
-def run_total_tests(resource_type, parameters, total, v_url, content_type):
+def run_total_tests(client, resource_type, parameters, total, v_url, content_type):
     if resource_type == 'Medication':
         print("MEDICATION run_total_tests")
     general_issues = list()
@@ -169,7 +176,7 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
             generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
         parameters.pop('_profile', None)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
-    elif paging_result.get_total() == 0:
+    if paging_result.get_total() == 0:
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         msg = f"No matches found for {resource_type}?{param_string}"
         print(msg)
@@ -183,16 +190,16 @@ def run_total_tests(resource_type, parameters, total, v_url, content_type):
                 print("MEDICATION before simple_test")
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
                 mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
-            except Exception as e:
-                error_issues.append(generate_issue("error", "exception", str(e)))
+            except Exception as exception:
+                error_issues.append(generate_issue("error", "exception", str(exception)))
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
     return general_issues, mapped_issues, error_issues
 
 
 # TODO
-def refine_report(raw_report):
+def refine_report(report):
     aggregate_map = dict()
-    for resource_type, resource_report in raw_report.items():
+    for resource_type, resource_report in report.items():
         if resource_type == 'Observation':
             obs_map = dict()
             aggregate_map[resource_type] = obs_map
@@ -233,10 +240,10 @@ if __name__ == '__main__':
         certificate = args.cert
     total = args.total
     count = args.count
-    v_url = args.validation_endpoint
-    client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate)
+    validation_endpoint = args.validation_endpoint
+    fhir_client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate)
     try:
-        raw_report = run_test(client, total, count, v_url)
+        raw_report = run_test(fhir_client, total, count, validation_endpoint)
         raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
         with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
             raw_report_file.write(json.dumps(raw_report, indent=4))

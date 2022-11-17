@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.10
+FROM python:3.10-alpine
 ENV FHIR_SERVER_URL: "http://localhost:8080/fhir"
 ENV TOTAL: 500
 ENV COUNT: 500

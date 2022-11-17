@@ -1,6 +1,6 @@
 #!/bin/bash
 export "$(grep -v '^#' .env | xargs)"
-docker-compose -p "${PROJECT_CONTEXT:-feasibility-deploy}" -f validation/adocker-compose-validation.yml up -d
+docker-compose -p "${PROJECT_CONTEXT:-feasibility-deploy}" -f validation_service/adocker-compose-validation.yml up -d
 for i in {0..101}
 do
   if [ "$i" -eq 101 ]

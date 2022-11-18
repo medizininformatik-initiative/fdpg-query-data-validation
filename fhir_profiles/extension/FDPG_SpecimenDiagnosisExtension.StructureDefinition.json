@@ -1,5 +1,6 @@
 {
   "resourceType": "StructureDefinition",
+  "id": "18089f89-796b-4dc7-99bd-13e3e10c5516",
   "url": "https://example.org/fhir/StructureDefinition/FDPG_SpecimenDiagnosisExtension",
   "name": "FDPG_SpecimenDiagnosisExtension",
   "status": "active",

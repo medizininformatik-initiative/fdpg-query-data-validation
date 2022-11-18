@@ -1,5 +1,6 @@
 {
   "resourceType": "StructureDefinition",
+  "id": "dfd038dc-3f98-448f-bdb1-9fb0b9440393",
   "url": "https://example.org/fhir/StructureDefinition/FDPG_SpecimenBiobank",
   "name": "FDPG_SpecimenBiobank",
   "status": "active",

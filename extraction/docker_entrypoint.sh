@@ -11,11 +11,11 @@ FHIR_TOKEN=${FHIR_TOKEN}
 HTTP_PROXY=${HTTP_PROXY}
 HTTPS_PROXY=${HTTPS_PROXY}
 
-echo ${FHIR_SERVER_URL}
+echo "${FHIR_SERVER_URL}"
 
 if [ -f "certificates/$CA_FILE_NAME" ]; then
     echo "Using certificate $CA_FILE_NAME"
     export REQUESTS_CA_BUNDLE="certificates/$CA_FILE_NAME"
 fi
 
-python main.py ${FHIR_SERVER_URL} -u ${USERNAME} -p ${PASSWORD} -ft ${FHIR_TOKEN} --http-proxy${HTTP_PROXY} --https-proxy ${HTTPS_PROXY} --cert ${REQUESTS_CA_BUNDLE} -t ${TOTAL} -c ${COUNT} -v ${VALIDATION_URL}
+python main.py "${FHIR_SERVER_URL}" -u "${USERNAME}" -p "${PASSWORD}" -ft "${FHIR_TOKEN}" --http-proxy "${HTTP_PROXY}" --https-proxy "${HTTPS_PROXY}" --cert "${REQUESTS_CA_BUNDLE}" -t "${TOTAL}" -c "${COUNT}" -v "${VALIDATION_URL}"

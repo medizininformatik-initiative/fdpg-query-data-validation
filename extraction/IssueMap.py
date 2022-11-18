@@ -14,7 +14,8 @@ class IssueMap:
         if key in self.__map:
             occurrences = self.__map[key]
             if diagnostics in occurrences:
-                occurrences[diagnostics] = (occurrences[diagnostics][0] + 1, occurrences[diagnostics][1].append(fhir_path))
+                occurrences[diagnostics] = (occurrences[diagnostics][0] + 1, occurrences[diagnostics][1]
+                                            .append(fhir_path))
             else:
                 occurrences[diagnostics] = 1, list(fhir_path)
         else:

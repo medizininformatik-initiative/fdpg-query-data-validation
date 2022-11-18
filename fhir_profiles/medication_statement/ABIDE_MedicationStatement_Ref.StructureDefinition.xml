@@ -11,17 +11,6 @@
   <baseDefinition value="https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/MedicationStatement" />
   <derivation value="constraint" />
   <differential>
-    <element id="MedicationStatement">
-      <path value="MedicationStatement" />
-      <constraint>
-        <key value="correctStatus" />
-        <requirements value="status has to be either active or completed to ensure consistent medication usage" />
-        <severity value="error" />
-        <human value="Status has to be either 'active' or 'completed'" />
-        <expression value="status contains 'active' or completed" />
-        <xpath value="boolean(status[@value='active' or @value='completed'])" />
-      </constraint>
-    </element>
     <element id="MedicationStatement.medication[x]">
       <path value="MedicationStatement.medication[x]" />
       <type>

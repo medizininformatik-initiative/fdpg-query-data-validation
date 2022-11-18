@@ -40,6 +40,296 @@
           }
         ],
         "isModifier": false
+      },
+      {
+        "id": "Specimen.type.coding:sct",
+        "path": "Specimen.type.coding",
+        "sliceName": "sct",
+        "fixedCoding": {
+          "system": "http://snomed.info/sct"
+        },
+        "code": [
+          {
+            "system": "http://snomed.info/sct",
+            "code": "445295009",
+            "display": "Blood specimen with EDTA"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258569003",
+            "display": "Skin fibroblast specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119339001",
+            "display": "Stool specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119350003",
+            "display": "Calculus specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "309201001",
+            "display": "Ascitic fluid specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119297000",
+            "display": "Blood specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119351004",
+            "display": "Erythrocyte specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258587000",
+            "display": "Buffy coat"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "122551003",
+            "display": "Peripheral blood specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "441652008",
+            "display": "Formalin-fixed paraffin-embedded tissue specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119364003",
+            "display": "Serum specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "608852006",
+            "display": "Specimen from nervous system"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258450006",
+            "display": "Cerebrospinal fluid specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119362004",
+            "display": "Platelet poor plasma specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258566005",
+            "display": "Deoxyribonucleic acid specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "309186001",
+            "display": "Oral tissue specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "446272009",
+            "display": "Blood specimen submitted in heparinized collection tube"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119373006",
+            "display": "Amniotic fluid specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "404798000",
+            "display": "Peripheral blood mononuclear cell"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119342007",
+            "display": "Saliva specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "122567009",
+            "display": "Urine sediment specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "57731000052104",
+            "display": "Stem cell specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119359002",
+            "display": "Bone marrow specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258417006",
+            "display": "Bone tissue specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119376003",
+            "display": "Tissue specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258580003",
+            "display": "Whole blood specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "276833005",
+            "display": "24 hour urine specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "441479001",
+            "display": "Fresh tissue specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119361006",
+            "display": "Plasma specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "16214131000119104",
+            "display": "Frozen tissue section specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "396997002",
+            "display": "Specimen from bone marrow obtained by aspiration"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "122575003",
+            "display": "Urine specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "57921000052103",
+            "display": "Whole blood specimen with edetic acid"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "708048008",
+            "display": "Plasma specimen with citrate"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258469001",
+            "display": "Pharyngeal washings"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119326000",
+            "display": "Hair specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "708049000",
+            "display": "Plasma specimen with ethylenediamine tetraacetic acid"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "726740008",
+            "display": "Cell free DNA"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "419333002",
+            "display": "Cellular component of blood"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119386002",
+            "display": "Specimen from prostate"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258435002",
+            "display": "Tumor tissue specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "441673008",
+            "display": "Ribonucleic acid specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "309072003",
+            "display": "Soft tissue specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "420135007",
+            "display": "Whole blood"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119332005",
+            "display": "Synovial fluid specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "447339001",
+            "display": "Nasal smear specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "278020009",
+            "display": "Spot urine specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "258607008",
+            "display": "Bronchoalveolar lavage fluid specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119325001",
+            "display": "Tissue specimen from skin"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119398007",
+            "display": "Specimen from brain"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "127456000",
+            "display": "Specimen from breast"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "119334006",
+            "display": "Sputum specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "122556008",
+            "display": "Cord blood specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "446676001",
+            "display": "Expressed breast milk specimen"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "441510007",
+            "display": "Blood specimen with anticoagulant"
+          },
+          {
+            "system": "http://snomed.info/sct",
+            "code": "127457009",
+            "display": "Tissue specimen from breast"
+          }
+        ]
       }
     ]
   }

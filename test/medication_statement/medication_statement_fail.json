@@ -1,0 +1,39 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "http://blaze-test-server:8080/fhir/MedicationStatement/Polar-WP-Mix-001-MS-1",
+            "resource": {
+                "meta": {
+                    "versionId": "74938",
+                    "lastUpdated": "2022-11-17T13:08:25.472Z",
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation/StructureDefinition/MedicationStatement"
+                    ]
+                },
+                "dosage": [
+                    {
+                        "doseAndRate": [
+                            {
+                                "doseQuantity": {
+                                    "value": 1,
+                                    "unit": "Filmtabletten",
+                                    "system": "http://unitsofmeasure.org",
+                                    "code": "1"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "resourceType": "MedicationStatement",
+                "status": "active",
+                "id": "Polar-WP-Mix-001-MS-1"
+            },
+            "request": {
+                "method": "PUT",
+                "url": "MedicationStatement/Polar-WP-Mix-001-MS-1"
+            }
+        }
+    ]
+}

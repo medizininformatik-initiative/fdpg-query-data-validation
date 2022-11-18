@@ -1,0 +1,33 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "http://blaze-test-server:8080/fhir/Procedure/UKB-0001-E-1-P-1",
+            "resource": {
+                "meta": {
+                    "versionId": "74955",
+                    "lastUpdated": "2022-11-17T13:08:25.759Z",
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-prozedur/StructureDefinition/Procedure"
+                    ]
+                },
+                "resourceType": "Procedure",
+                "id": "UKB-0001-E-1-P-1",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "80146002",
+                            "display": "Excision of appendix (procedure)"
+                        }
+                    ]
+                }
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Procedure/UKB-0001-E-1-P-1"
+            }
+        }
+    ]
+}

@@ -829,8 +829,8 @@
 		"5810-7": "https://example.org/fhir/StructureDefinition/FDPG_Observation_Default"
 	},
     "Medication": "https://example.org/fhir/StructureDefinition/ABIDE_Medication_ATCde",
-    "MedicationAdministration": "https://example.org/fhir/StructureDefinition/ABIDE_MedicationAdministration_ATCde",
-    "MedicationStatement": "https://example.org/fhir/StructureDefinition/ABIDE_MedicationStatement_ATCde",
-    "Procedure": "https://example.org/fhir/StructureDefinition/ABIDE_Procedure",
+    "MedicationAdministration": "https://example.org/fhir/StructureDefinition/ABIDE_MedicationAdministration_Ref",
+    "MedicationStatement": "https://example.org/fhir/StructureDefinition/ABIDE_MedicationStatement_Ref",
+    "Procedure": "https://example.org/fhir/StructureDefinition/FDPG_Procedure",
 	"Specimen": "https://example.org/fhir/StructureDefinition/FDPG_SpecimenBiobank"
 }

@@ -238,12 +238,12 @@ if __name__ == '__main__':
     certificate = None
     if args.cert is not None:
         certificate = args.cert
-    total = args.total
-    count = args.count
+    total_sample_size = args.total
+    resource_count_per_page = args.count
     validation_endpoint = args.validation_endpoint
     fhir_client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate)
     try:
-        raw_report = run_test(fhir_client, total, count, validation_endpoint)
+        raw_report = run_test(fhir_client, total_sample_size, resource_count_per_page, validation_endpoint)
         raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
         with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
             raw_report_file.write(json.dumps(raw_report, indent=4))

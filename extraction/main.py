@@ -163,8 +163,6 @@ def run_test(client, total, count, v_url):
 
 # Returns issues grouped by the instance ID
 def run_total_tests(client, resource_type, parameters, total, v_url, content_type):
-    if resource_type == 'Medication':
-        print("MEDICATION run_total_tests")
     general_issues = list()
     mapped_issues = dict()
     error_issues = list()
@@ -187,7 +185,6 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
             print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed ", end='\b',
                   flush=True)
             try:
-                print("MEDICATION before simple_test")
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
                 mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
             except Exception as exception:

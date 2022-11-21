@@ -27,9 +27,12 @@ class FHIRClient:
             parameters = {}
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of " \
                                                 f"{', '.join(resource_types)} "
-        param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
-        print(f"Requesting: {self.__url}/{resource_type}?{param_string}")
-        bundle = json.loads(requests.get(url=f"{self.__url}/{resource_type}?{param_string}", headers=self.__headers,
+        request_string = f"{self.__url}/{resource_type}
+        if parameters is not None:
+            param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
+            request_string = f"{request_string}?{param_string}"
+        print(f"Requesting: {request_string}")
+        bundle = json.loads(requests.get(url=request_string, headers=self.__headers,
                                          proxies=self.__proxies, verify=self.__cert).text)
         if not paging:
             return bundle

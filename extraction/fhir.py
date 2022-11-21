@@ -27,7 +27,7 @@ class FHIRClient:
             parameters = {}
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of " \
                                                 f"{', '.join(resource_types)} "
-        request_string = f"{self.__url}/{resource_type}
+        request_string = f"{self.__url}/{resource_type}"
         if parameters is not None:
             param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
             request_string = f"{request_string}?{param_string}"

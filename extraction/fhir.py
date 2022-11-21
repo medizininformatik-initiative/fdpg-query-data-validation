@@ -23,8 +23,6 @@ class FHIRClient:
 
     def get(self, resource_type, parameters=None, paging=True, get_all=False, max_cnt=sys.maxsize):
         current_cnt = 0
-        if parameters is None:
-            parameters = {}
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of " \
                                                 f"{', '.join(resource_types)} "
         request_string = f"{self.__url}/{resource_type}"

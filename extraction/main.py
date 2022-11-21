@@ -271,11 +271,19 @@ if __name__ == '__main__':
     raw_report = dict()
     try:
         raw_report["distribution"] = analyse_distribution(fhir_client)
+    except Exception as e:
+        print("Distribution analysis failed and will not be included")
+        print(str(e))
+    try:
         raw_report["validation"] = run_test(fhir_client, total_sample_size, resource_count_per_page, validation_endpoint)
+    except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
+        print("Report generation stopped due to missing connection to FHIR server")
+        print(str(e))
+    try:
         raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
         with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
             raw_report_file.write(json.dumps(raw_report, indent=4))
             print(f"Generated reports: {raw_report_name}")
-    except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
-        print("Report generation stopped due to missing connection to FHIR server")
+    except Exception as e:
+        print("Could not write report")
         print(str(e))

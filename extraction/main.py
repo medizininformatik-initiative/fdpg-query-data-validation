@@ -242,7 +242,7 @@ def analyse_distribution(client):
 
 
 def count_total(resource_type, client, params=None):
-    response_bundle = client.get(resource_type, params=params, paging=False)
+    response_bundle = client.get(resource_type, parameters=params, paging=False)
     total = response_bundle.get('total', 0)
     print(f"\tTotal instances of {resource_type}", end='')
     if params is not None:

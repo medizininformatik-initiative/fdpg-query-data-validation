@@ -1,0 +1,159 @@
+{
+    "resourceType": "Bundle",
+    "type": "transaction",
+    "entry": [
+        {
+            "fullUrl": "Specimen/MusterprobeGewebe",
+            "resource": {
+                "resourceType": "Specimen",
+                "id": "MusterprobeGewebe",
+                "meta": {
+                    "profile":  [
+                        "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen"
+                    ]
+                },
+                "type": {
+                    "coding":  [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "399492000",
+                            "display": "Tissue specimen from lung (specimen)"
+                        }
+                    ]
+                },
+                "extension":  [
+                    {
+                        "url": "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/VerwaltendeOrganisation",
+                        "valueReference": {
+                            "reference": "Organization/Mustersammlung"
+                        }
+                    }
+                ],
+                "collection": {
+                    "extension":  [
+                        {
+                            "url": "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/EinstellungBlutversorgung",
+                            "valueDateTime": "2018-06-08T15:32:00+01:00"
+                        }
+                    ],
+                    "collectedDateTime": "2018-06-08T15:34:00+01:00",
+                    "fastingStatusDuration": {
+                        "value": 4,
+                        "code": "h",
+                        "system": "http://unitsofmeasure.org"
+                    },
+                    "bodySite": {
+                        "coding":  [
+                            {
+                                "code": "14559000",
+                                "system": "http://snomed.info/sct",
+                                "display": "Structure of apex of left lung (body structure)"
+                            }
+                        ]
+                    }
+                },
+                "processing":  [
+                    {
+                        "extension":  [
+                            {
+                                "valueRange": {
+                                    "low": {
+                                        "system": "http://unitsofmeasure.org",
+                                        "code": "Cel",
+                                        "unit": "°C",
+                                        "value": 15
+                                    },
+                                    "high": {
+                                        "system": "http://unitsofmeasure.org",
+                                        "code": "Cel",
+                                        "unit": "°C",
+                                        "value": 25
+                                    }
+                                },
+                                "url": "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen"
+                            }
+                        ],
+                        "procedure": {
+                            "coding":  [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "1186936003",
+                                    "display": "Storage of specimen (procedure)"
+                                }
+                            ]
+                        },
+                        "timePeriod": {
+                            "start": "2018-06-08T15:34:00+01:00",
+                            "end": "2018-06-08T15:42:00+01:00"
+                        }
+                    },
+                    {
+                        "extension":  [
+                            {
+                                "valueRange": {
+                                    "low": {
+                                        "system": "http://unitsofmeasure.org",
+                                        "code": "Cel",
+                                        "unit": "°C",
+                                        "value": -85
+                                    },
+                                    "high": {
+                                        "system": "http://unitsofmeasure.org",
+                                        "code": "Cel",
+                                        "unit": "°C",
+                                        "value": -60
+                                    }
+                                },
+                                "url": "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Temperaturbedingungen"
+                            }
+                        ],
+                        "procedure": {
+                            "coding":  [
+                                {
+                                    "system": "http://snomed.info/sct",
+                                    "code": "1186936003",
+                                    "display": "Storage of specimen (procedure)"
+                                },
+                                {
+                                    "code": "27872000",
+                                    "system": "http://snomed.info/sct",
+                                    "display": "Specimen freezing (procedure)"
+                                }
+                            ]
+                        },
+                        "timePeriod": {
+                            "start": "2018-06-08T15:42:00+01:00"
+                        }
+                    }
+                ],
+                "identifier":  [
+                    {
+                        "system": "https://biobank.uk-musterstadt.de/fhir/sid/proben",
+                        "value": "6789"
+                    }
+                ],
+                "status": "available",
+                "subject": {
+                    "reference": "Patient/12345"
+                },
+                "container":  [
+                    {
+                        "type": {
+                            "coding":  [
+                                {
+                                    "code": "83059008",
+                                    "system": "http://snomed.info/sct",
+                                    "display": "Tube, device (physical object)"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "request": {
+                "method": "PUT",
+                "url": "Specimen/MusterprobeGewebe"
+            }
+        }
+    ]
+}    

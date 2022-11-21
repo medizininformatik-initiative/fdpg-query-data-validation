@@ -26,7 +26,7 @@ services:
       validation-structure-definition-server:
         condition: service_healthy
   validation-terminology-service:
-    image: "ghcr.io/itcr-uni-luebeck/termite:0.1.12-RC"
+    image: "ghcr.io/itcr-uni-luebeck/termite:0.1.13-RC"
     ports:
       - "${TERMINOLOGY_SERVICE_PORT:-8093}:8083"
     environment:

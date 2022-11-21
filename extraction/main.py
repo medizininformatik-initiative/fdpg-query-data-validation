@@ -231,13 +231,13 @@ def analyse_distribution(client):
     for resource_type, searches in count_searches.items():
         print(f"Distribution test for {resource_type}")
         type_total = count_total(resource_type, client)
-        results[resource_type]['total'] = type_total
+        results[resource_type] = {'total': type_total}
         for search_path, values in searches:
             search_path_results = dict()
             for value in values:
                 value_total = count_total(resource_type, client, params={search_path: value})
                 search_path_results[value]: value_total
-            results[search_path]: search_path_results
+            results[resource_type][search_path]: search_path_results
     return results
 
 
@@ -246,9 +246,8 @@ def count_total(resource_type, client, params=None):
     total = response_bundle.get('total', 0)
     print(f"\tTotal instances of {resource_type}", end='')
     if params is not None:
-        print(" with {', '.join([f'{k}={v}' for k, v in params.items()])}")
-    else:
-        print("")
+        print(f" with {', '.join([f'{k}={v}' for k, v in params.items()])}")
+    print(f": {total}")
     return total
 
 

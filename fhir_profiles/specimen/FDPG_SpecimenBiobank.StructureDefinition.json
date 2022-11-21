@@ -46,9 +46,6 @@
         "id": "Specimen.type.coding:sct",
         "path": "Specimen.type.coding",
         "sliceName": "sct",
-        "fixedCoding": {
-          "system": "http://snomed.info/sct"
-        },
         "code": [
           {
             "system": "http://snomed.info/sct",

@@ -9,6 +9,7 @@ from IssueMap import IssueMap
 from fhir import FHIRClient
 
 cert_dir = 'certificates'
+distribution_tests_file = os.path.join('distribution_tests', 'distribution_tests.json')
 
 
 def configure_argparser():
@@ -223,6 +224,34 @@ def process_op_outcome(op_outcome, issue_map):
         issue_map.put_issue(issue)
 
 
+def analyse_distribution(client):
+    print("Running distribution analysis")
+    count_searches = json.loads(open(distribution_tests_file).read())
+    results = dict()
+    for resource_type, searches in count_searches.items():
+        print(f"Distribution test for {resource_type}")
+        type_total = count_total(resource_type, client)
+        results[resource_type]['total'] = type_total
+        for search_path, values in searches:
+            search_path_results = dict()
+            for value in values:
+                value_total = count_total(resource_type, client, params={search_path: value})
+                search_path_results[value]: value_total
+            results[search_path]: search_path_results
+    return results
+
+
+def count_total(resource_type, client, params=None):
+    response_bundle = client.get(resource_type, params=params, paging=False)
+    total = response_bundle.get('total', 0)
+    print(f"\tTotal instances of {resource_type}", end='')
+    if params is not None:
+        print(" with {', '.join([f'{k}={v}' for k, v in params.items()])}")
+    else:
+        print("")
+    return total
+
+
 if __name__ == '__main__':
     parser = configure_argparser()
     args = parser.parse_args()
@@ -239,8 +268,10 @@ if __name__ == '__main__':
     resource_count_per_page = args.count
     validation_endpoint = args.validation_endpoint
     fhir_client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate)
+    raw_report = dict()
     try:
-        raw_report = run_test(fhir_client, total_sample_size, resource_count_per_page, validation_endpoint)
+        raw_report["distribution"] = analyse_distribution(fhir_client)
+        raw_report["validation"] = run_test(fhir_client, total_sample_size, resource_count_per_page, validation_endpoint)
         raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
         with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
             raw_report_file.write(json.dumps(raw_report, indent=4))

@@ -92,6 +92,7 @@ services:
     volumes:
       - ${REPORT_LOCATION:-./report}:/app/report
       - ${VALIDATION_MAPPING_DIRECTORY:-./maps}:/app/maps
+      - ${DISTRIBUTION_TEST_DIRECTORY:-./distribution_tests}:/app/distribution_tests
     depends_on:
       validation-mapping-service:
         condition: service_healthy

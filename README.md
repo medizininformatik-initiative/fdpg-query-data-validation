@@ -12,7 +12,12 @@ how to run this tool itself, but also on how to integrate it into existing softw
 
 ### Step 1 - Installation Prerequisites:
 If not already installed on your virtual machine download and install: 
-Docker (https://docs.docker.com/engine/install/ubuntu/) and docker-compose (https://docs.docker.com/compose/install/).
+
+#### Linux:
+Docker (https://docs.docker.com/engine/install/ubuntu/) and the docker-compose plugin (https://docs.docker.com/compose/install/linux/).
+
+#### Windows:
+Docker Desktop with integrated docker-compose plugin (https://docs.docker.com/desktop/install/windows-install/)
 
 ### Step 2 - Clone this Repository to your virtual machine
 ssh to your virtual machine and switch to sudo `sudo -s` <br />

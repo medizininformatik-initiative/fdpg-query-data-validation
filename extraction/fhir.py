@@ -33,8 +33,11 @@ class FHIRClient:
             param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
             request_string = f"{request_string}?{param_string}"
         print(f"Requesting: {request_string} with headers {self.__headers}")
-        bundle = json.loads(requests.get(url=request_string, headers=self.__headers,
-                                         proxies=self.__proxies, verify=self.__cert).text)
+        response = requests.get(url=request_string, headers=self.__headers, proxies=self.__proxies, verify=self.__cert)
+        if response.status_code != 200:
+            raise ConnectionError(f"Request failed with status code {response.status_code} "
+                                  f"and headers {response.headers}:\n{response.text}")
+        bundle = json.loads(response.text)
         if not paging:
             return bundle
         else:
@@ -46,8 +49,11 @@ class FHIRClient:
                     if next_url is None:
                         break
                     print(f"Requesting: {next_url}")
-                    bundle = json.loads(requests.get(url=next_url, headers=self.__headers, proxies=self.__proxies,
-                                                     verify=self.__cert).text)
+                    response = requests.get(url=next_url, headers=self.__headers, proxies=self.__proxies, verify=self.__cert)
+                    if response.status_code != 200:
+                        raise ConnectionError(f"Paging failed with status code {response.status_code} and "
+                                              f"headers {response.headers}:\n{response.text}")
+                    bundle = json.loads(response.text)
                     current_cnt += len(bundle.get('entry', []))
                 return bundles
             else:
@@ -80,8 +86,11 @@ class PagingResult:
         self.__current_cnt += len(bundle.get('entry', []))
         if self.__next_url is not None and self.__current_cnt < self.__max_cnt:
             print(f"Requesting: {self.__next_url}")
-            self.__current_page = json.loads(requests.get(self.__next_url, headers=self.__headers, auth=self.__auth,
-                                                          verify=self.__cert).text)
+            response = requests.get(self.__next_url, headers=self.__headers, auth=self.__auth, verify=self.__cert)
+            if response.status_code != 200:
+                raise StopIteration(f"Paging failed with status code {response.status_code} and "
+                                    f"headers {response.headers}:\n{response.text}")
+            self.__current_page = json.loads(response.text)
         else:
             self.__stop = True
         return bundle

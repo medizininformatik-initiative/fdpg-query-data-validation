@@ -47,14 +47,11 @@ def make_bundle(bundles):
 
 
 def simple_test(data, v_url, content_type):
-    response = requests.post(url=v_url, data=data, headers={"Content-Type": content_type})
-    if response.status_code == 200:
+    try:
+        response = requests.post(url=v_url, data=data, headers={"Content-Type": content_type})
         return json.loads(response.text)
-    else:
-        msg = f"Test failed due inadequate response status {response.status_code}; Response header: {response.text}"
-        print(f"WARNING: {msg}")
-        print(data)
-        raise Exception(msg)
+    except Exception as error:
+        raise Exception("Simple test failed", error)
 
 
 def observation_test(data, v_url, content_type):
@@ -188,8 +185,8 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
             try:
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
                 mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
-            except Exception as exception:
-                error_issues.append(generate_issue("error", "exception", str(exception)))
+            except Exception as error:
+                error_issues.append(generate_issue("error", "exception", traceback.format_exception(error)))
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
     return general_issues, mapped_issues, error_issues
 
@@ -224,6 +221,7 @@ def process_op_outcome(op_outcome, issue_map):
         issue_map.put_issue(issue)
 
 
+# NOTE: Can be quite costly!
 def analyse_distribution(client):
     print("Running distribution analysis")
     count_searches = json.loads(open(distribution_tests_file).read())
@@ -235,19 +233,31 @@ def analyse_distribution(client):
         for search_path, values in searches.items():
             search_path_results = dict()
             for value in values:
-                value_total = count_total(resource_type, client, params={search_path: value})
-                search_path_results[value] = value_total
+                try:
+                    # Insert value into search path and split for insertion as param into FHIR client's get function
+                    search_path_param = search_path.replace('?', value).split('=')
+                    value_total = count_total(resource_type, client, params={search_path_param[0]: search_path_param[1]})
+                    search_path_results[value] = value_total
+                except Exception as error:
+                    print("Failed distribution analysis: Results will be excluded")
+                    traceback.print_tb(error.__traceback__)
             results[resource_type][search_path]: search_path_results
     return results
 
 
 def count_total(resource_type, client, params=None):
-    result_bundle = client.get(resource_type, parameters=params, paging=False)
-    total = result_bundle.get('total', len(result_bundle.get('entry', [])))
-    print(f"\tTotal instances of {resource_type}", end='')
-    if params is not None:
-        print(f" with {', '.join([f'{k}={v}' for k, v in params.items()])}", end='')
-    print(f": {total}")
+    paging_result = client.get(resource_type, parameters=params)
+    total = 0
+    # Unfortunate solution since some FHIR server don't always provide a total element
+    try:
+        for result_bundle in paging_result:
+            total += len(result_bundle.get('entry', []))
+        print(f"\tTotal instances of {resource_type}", end='')
+        if params is not None:
+            print(f" with {', '.join([f'{k}={v}' for k, v in params.items()])}", end='')
+        print(f": {total}")
+    except Exception as error:
+        raise Exception(f"Counting failed for {resource_type} with parameters {params}") from error
     return total
 
 

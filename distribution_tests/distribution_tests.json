@@ -1,12 +1,12 @@
 {
   "Procedure": {
-    "code.system": [
+    "code=?|": [
       "http://fhir.de/CodeSystem/bfarm/ops",
       "http://snomed.info/sct"
     ]
   },
   "Condition": {
-    "code.system": [
+    "code=?|": [
       "http://fhir.de/CodeSystem/bfarm/icd-10-gm",
       "http://fhir.de/CodeSystem/bfarm/alpha-id",
       "http://snomed.info/sct",
@@ -14,7 +14,7 @@
     ]
   },
   "Medication": {
-    "code.system": [
+    "code=?|": [
       "http://fhir.de/CodeSystem/ifa/pzn",
       "http://fhir.de/CodeSystem/bfarm/atc",
       "http://www.whocc.no/atc"

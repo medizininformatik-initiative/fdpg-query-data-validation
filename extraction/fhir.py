@@ -12,14 +12,17 @@ class FHIRClient:
 
     def __init__(self, url, user=None, pw=None, token=None, proxies=None, cert=None):
         self.__url = url
-        self.__headers = {'Content-Type': 'application/json', 'Prefer': 'handling=strict'}
+        # Removed ['Prefer': 'handling=strict'] from headers due to issues with FHIR search requests
+        self.__headers = {'Content-Type': 'application/json'}
         self.__auth = None
         if token is not None:
             self.__headers['Authorization'] = f"Bearer: {token}"
         else:
             self.__auth = auth.HTTPBasicAuth(user, pw)
         self.__proxies = proxies
-        self.__cert = cert
+        self.__cert = None
+        if cert is not None and len(cert) > 0:
+            self.__cert = cert
 
     def get(self, resource_type, parameters=None, paging=True, get_all=False, max_cnt=sys.maxsize):
         current_cnt = 0
@@ -29,7 +32,7 @@ class FHIRClient:
         if parameters is not None:
             param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
             request_string = f"{request_string}?{param_string}"
-        print(f"Requesting: {request_string}")
+        print(f"Requesting: {request_string} with headers {self.__headers}")
         bundle = json.loads(requests.get(url=request_string, headers=self.__headers,
                                          proxies=self.__proxies, verify=self.__cert).text)
         if not paging:
@@ -55,7 +58,7 @@ class PagingResult:
 
     def __init__(self, bundle, max_cnt=sys.maxsize, headers=None, authorization=None, cert=None):
         self.__current_page = bundle
-        self.__total = bundle.get('total', 0)
+        self.__total = bundle.get('total', len(bundle.get('entry', [])))
         self.__next_url = get_next_url(bundle)
         self.__max_cnt = max_cnt
         self.__current_cnt = 0
@@ -83,6 +86,10 @@ class PagingResult:
             self.__stop = True
         return bundle
 
+    def is_empty(self):
+        return self.__total == 0
+
+    # Might not be reliable depending on whether the server FHIR server returns a value for the total element
     def get_total(self):
         return self.__total
 
@@ -95,5 +102,6 @@ def get_next_url(bundle):
                 next_url = link['url']
                 break
     else:
-        raise Exception(f"Failed to retrieve bundle link")
+        # print(f"Failed to retrieve bundle link")
+        return None
     return next_url

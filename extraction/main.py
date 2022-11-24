@@ -1,7 +1,7 @@
 import argparse
 import os
 import time
-
+import traceback
 import requests
 import json
 
@@ -168,14 +168,14 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
     mapped_issues = dict()
     error_issues = list()
     paging_result = client.get(resource_type, parameters, max_cnt=total)
-    if paging_result.get_total() == 0:
+    if paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         print(f"Excluding profile constraint for {resource_type}?{param_string} since no data matches it")
         general_issues.append(
             generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
         parameters.pop('_profile', None)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
-    if paging_result.get_total() == 0:
+    if paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         msg = f"No matches found for {resource_type}?{param_string}"
         print(msg)
@@ -232,21 +232,21 @@ def analyse_distribution(client):
         print(f"Distribution test for {resource_type}")
         type_total = count_total(resource_type, client)
         results[resource_type] = {'total': type_total}
-        for search_path, values in searches:
+        for search_path, values in searches.items():
             search_path_results = dict()
             for value in values:
                 value_total = count_total(resource_type, client, params={search_path: value})
-                search_path_results[value]: value_total
+                search_path_results[value] = value_total
             results[resource_type][search_path]: search_path_results
     return results
 
 
 def count_total(resource_type, client, params=None):
-    response_bundle = client.get(resource_type, parameters=params, paging=False)
-    total = response_bundle.get('total', 0)
+    result_bundle = client.get(resource_type, parameters=params, paging=False)
+    total = result_bundle.get('total', len(result_bundle.get('entry', [])))
     print(f"\tTotal instances of {resource_type}", end='')
     if params is not None:
-        print(f" with {', '.join([f'{k}={v}' for k, v in params.items()])}")
+        print(f" with {', '.join([f'{k}={v}' for k, v in params.items()])}", end='')
     print(f": {total}")
     return total
 
@@ -271,10 +271,11 @@ if __name__ == '__main__':
     try:
         raw_report["distribution"] = analyse_distribution(fhir_client)
     except Exception as e:
-        print("Distribution analysis failed and will not be included")
-        print(str(e))
+        print(f"Distribution analysis failed and will not be included:\n "
+              f"{traceback.format_exception(None, e, e.__traceback__)}", flush=True)
     try:
-        raw_report["validation"] = run_test(fhir_client, total_sample_size, resource_count_per_page, validation_endpoint)
+        raw_report["validation"] = run_test(fhir_client, total_sample_size, resource_count_per_page,
+                                            validation_endpoint)
     except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
         print("Report generation stopped due to missing connection to FHIR server")
         print(str(e))

@@ -253,9 +253,10 @@ def analyse_distribution(client):
                     value_total = count_total(resource_type, client, params={search_path_param[0]: search_path_param[1]})
                     search_path_results[value] = value_total
                 except Exception as error:
-                    print("Failed distribution analysis: Results will be excluded")
+                    print(f"Failed distribution analysis for {resource_type}::{search_path}::{value}: "
+                          f"Results will be excluded")
                     traceback.print_tb(error.__traceback__)
-            results[resource_type][search_path]: search_path_results
+            results[resource_type][search_path] = search_path_results
     return results
 
 

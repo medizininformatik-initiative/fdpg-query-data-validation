@@ -145,8 +145,6 @@ def run_test(client, total, count, v_url):
                 general_issues['issue'].extend(general)
             report[resource_type] = obs_reports
         else:
-            if resource_type == 'Medication':
-                print("MEDICATION")
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
             general, mapped_issues, errors = run_total_tests(client, resource_type, parameters, total, v_url,
                                                              "application/json")
@@ -164,15 +162,28 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
     general_issues = list()
     mapped_issues = dict()
     error_issues = list()
-    paging_result = client.get(resource_type, parameters, max_cnt=total)
-    if paging_result.is_empty():
+    paging_result = None
+    try:
+        paging_result = client.get(resource_type, parameters, max_cnt=total)
+    except Exception as error:
+        msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
+              f"report "
+        print(f"{msg}:\n{traceback.format_exception(error)}")
+        error_issues.append(generate_issue('error', 'processing', msg))
+    if paging_result is None or paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         print(f"Excluding profile constraint for {resource_type}?{param_string} since no data matches it")
         general_issues.append(
             generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
         parameters.pop('_profile', None)
-        paging_result = client.get(resource_type, parameters, max_cnt=total)
-    if paging_result.is_empty():
+        try:
+            paging_result = client.get(resource_type, parameters, max_cnt=total)
+        except Exception as error:
+            msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
+                  f"report "
+            print(f"{msg}:\n{traceback.format_exception(error)}")
+            error_issues.append(generate_issue('error', 'processing', msg))
+    if paging_result is None or paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         msg = f"No matches found for {resource_type}?{param_string}"
         print(msg)
@@ -186,7 +197,10 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
                 mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
             except Exception as error:
-                error_issues.append(generate_issue("error", "exception", traceback.format_exception(error)))
+                msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
+                      f"report "
+                print(f"{msg}:\n{traceback.format_exception(error)}")
+                error_issues.append(generate_issue('error', 'processing', msg))
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
     return general_issues, mapped_issues, error_issues
 
@@ -287,8 +301,8 @@ if __name__ == '__main__':
         raw_report["validation"] = run_test(fhir_client, total_sample_size, resource_count_per_page,
                                             validation_endpoint)
     except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
-        print("Report generation stopped due to missing connection to FHIR server")
-        print(str(e))
+        print("Report generation stopped due to missing connection to FHIR server", flush=True)
+        print(str(e), flush=True)
     try:
         raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
         with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:

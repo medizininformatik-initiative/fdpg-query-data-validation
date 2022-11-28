@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   validation-mapping-service:
-    image: "ghcr.io/itcr-uni-luebeck/validation-profile-mapper:0.1.14"
+    image: "ghcr.io/itcr-uni-luebeck/validation-profile-mapper:0.1.15"
     environment:
       SERVICE_PORT: "8082"
       VALIDATOR_URL: "http://feasibility-deploy-fhir-data-validator-1:8081/validate"

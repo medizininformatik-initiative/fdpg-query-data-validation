@@ -148,11 +148,11 @@ For facilitating this task, it draws required StructureDefinition instances from
 [Blaze FHIR server](https://github.com/samply/blaze). The [KDS profiles of the MII](https://simplifier.net/organization/koordinationsstellemii/~projects)
 and their respective dependencies serve as a baseline and are provided using the [FHIR populator](https://pypi.org/project/fhir-populator/)
 tool. Additional StructureDefinitions to possibly validate against can be uploaded by placing the respective
-files in the **api/profiles** directory.
+files in the **fhir_profiles** directory.
 
 Additionally, a lightweight [terminology server](https://github.com/paulolaup/termite) is included to enable the 
 validation against value sets and code systems. Value sets can be added by placing files containing
-the **expanded(!)** version into the **api/terminology_data** folder.
+the **expanded(!)** version into the **value_sets** folder.
 
 The OperationOutcome instances generated during validation are returned to the Validation API-Endpoint layer and
 returned to the extraction script.
@@ -163,6 +163,7 @@ check their data for issues after validation is done. The reports can be found u
 **REPORT_LOCATION** environment variable (see *Configuration* section).
 
 **NOTE:** No data not initially present during the build and startup phase of this tool is retained in the system and
-neither is data obtained from your server
+neither is data obtained from your server. However, data elements raising an issue will be most likely included in the 
+report!
 
 ![alt text](architecture.png)

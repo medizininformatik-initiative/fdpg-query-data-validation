@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   fhir-data-extraction:
-    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.3.9"
+    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.3.11"
     environment:
       FHIR_SERVER_URL: "${FHIR_SERVER_URL:-http://localhost:8080/fhir}"
       TOTAL: "${TOTAL:-500}"

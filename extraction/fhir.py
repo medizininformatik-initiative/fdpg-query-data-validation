@@ -15,7 +15,7 @@ class FHIRClient:
         # Removed ['Prefer': 'handling=strict'] from headers due to issues with FHIR search requests
         self.__headers = {'Content-Type': 'application/json'}
         self.__auth = None
-        if token is not None:
+        if token is not None and len(token) > 0:
             self.__headers['Authorization'] = f"Bearer: {token}"
         else:
             self.__auth = auth.HTTPBasicAuth(user, pw)

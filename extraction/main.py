@@ -74,7 +74,7 @@ def map_issues_to_entry(bundle, op_outcome):
     id_issue_map = dict()
     for issue in op_outcome.get('issue', []):
         if 'location' in issue:
-            fhir_path = issue.get('location', dict())[0]
+            fhir_path = issue.get('location', [])[0]
             # Due to using the HAPI Validator and Bundle instances the index of the resource instance in the entry
             # list is assumed to be contained in the second component of the FHIR path expression Form:
             # Bundle.entry[x]... where x is some number
@@ -85,6 +85,11 @@ def map_issues_to_entry(bundle, op_outcome):
                 id_issue_map[resource_id].append(issue_entry)
             else:
                 id_issue_map[resource_id] = [issue_entry]
+        else:
+            if 'not-assignable' in id_issue_map:
+                id_issue_map['not-assignable'].append(issue)
+            else:
+                id_issue_map['not-assignable'] = [issue]
     return id_issue_map
 
 
@@ -206,8 +211,9 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
 
 # TODO
 def refine_report(report):
-    aggregate_map = dict()
-    for resource_type, resource_report in report.items():
+    aggregate_map = {'distribution': report['distribution'],
+                     'validation': dict()}
+    for resource_type, resource_report in report['validation'].items():
         if resource_type == 'Observation':
             obs_map = dict()
             aggregate_map[resource_type] = obs_map
@@ -241,7 +247,8 @@ def analyse_distribution(client):
     results = dict()
     for resource_type, searches in count_searches.items():
         print(f"Distribution test for {resource_type}")
-        type_total = count_total(resource_type, client)
+        response = client.get(resource_type, parameters={'_summary': 'count'}, paging=False)
+        type_total = response['total']
         results[resource_type] = {'total': type_total}
         for search_path, values in searches.items():
             search_path_results = dict()
@@ -249,30 +256,16 @@ def analyse_distribution(client):
                 try:
                     # Insert value into search path and split for insertion as param into FHIR client's get function
                     search_path_param = search_path.replace('?', value).split('=')
-                    value_total = count_total(resource_type, client, params={search_path_param[0]: search_path_param[1]})
-                    search_path_results[value] = value_total
+                    params = {search_path_param[0]: search_path_param[1],
+                              '_summary': 'count'}
+                    response = client.get(resource_type, parameters=params, paging=False)
+                    search_path_results[value] = response.get('total')
                 except Exception as error:
                     print(f"Failed distribution analysis for {resource_type}::{search_path}::{value}: "
                           f"Results will be excluded")
                     traceback.print_tb(error.__traceback__)
             results[resource_type][search_path] = search_path_results
     return results
-
-
-def count_total(resource_type, client, params=None):
-    paging_result = client.get(resource_type, parameters=params)
-    total = 0
-    # Unfortunate solution since some FHIR server don't always provide a total element
-    try:
-        for result_bundle in paging_result:
-            total += len(result_bundle.get('entry', []))
-        print(f"\tTotal instances of {resource_type}", end='')
-        if params is not None:
-            print(f" with {', '.join([f'{k}={v}' for k, v in params.items()])}", end='')
-        print(f": {total}")
-    except Exception as error:
-        raise Exception(f"Counting failed for {resource_type} with parameters {params}") from error
-    return total
 
 
 if __name__ == '__main__':

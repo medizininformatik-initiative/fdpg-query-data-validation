@@ -47,21 +47,15 @@ class FHIRClient:
         if not paging:
             return bundle
         else:
+            paging_result = PagingResult(bundle, max_cnt=max_cnt, headers=self.__headers, authorization=self.__auth,
+                                         proxies=self.__proxies, cert=self.__cert)
             if get_all:
                 bundles = list()
-                while current_cnt < max_cnt:
-                    bundles.append(bundle)
-                    next_url = get_next_url(bundle)
-                    if next_url is None:
-                        break
-                    print(f"Requesting: {next_url}")
-                    response = self.__make_request(next_url)
-                    bundle = json.loads(response.text)
-                    current_cnt += len(bundle.get('entry', []))
+                for result_page in paging_result:
+                    bundles.append(result_page)
                 return bundles
             else:
-                return PagingResult(bundle, max_cnt=max_cnt, headers=self.__headers, authorization=self.__auth,
-                                    proxies=self.__proxies, cert=self.__cert)
+                return paging_result
 
 
 class PagingResult:

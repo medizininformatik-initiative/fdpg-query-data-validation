@@ -40,7 +40,7 @@ services:
       start_period: 20s
       timeout: 5s
   fhir-data-validator:
-    image: "ghcr.io/itcr-uni-luebeck/fhir-marshal:1.1.6"
+    image: "ghcr.io/itcr-uni-luebeck/fhir-marshal:1.1.7"
     environment:
       STRUCTURE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       TERMINOLOGY_SERVER_URL: "http://validation-terminology-service:8083/fhir"

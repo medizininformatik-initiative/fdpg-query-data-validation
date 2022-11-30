@@ -165,7 +165,7 @@ def run_test(client, total, count, v_url):
 # Returns issues grouped by the instance ID
 def run_total_tests(client, resource_type, parameters, total, v_url, content_type):
     general_issues = list()
-    mapped_issues = dict()
+    issues = list()
     error_issues = list()
     paging_result = None
     try:
@@ -199,14 +199,14 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
             print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed")
             try:
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
-                mapped_issues.update(map_issues_to_entry(bundle, op_outcome))
+                issues.append(op_outcome.get('issue', []))
             except Exception as error:
                 msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
                       f"report "
                 print(f"{msg}:\n{traceback.format_exception(error)}")
                 error_issues.append(generate_issue('error', 'processing', msg))
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
-    return general_issues, mapped_issues, error_issues
+    return general_issues, issues, error_issues
 
 
 # TODO

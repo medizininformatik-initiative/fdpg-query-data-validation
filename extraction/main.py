@@ -6,6 +6,7 @@ import requests
 import json
 
 from IssueMap import IssueMap
+from IssueSet import IssueSet
 from fhir import FHIRClient
 
 cert_dir = 'certificates'
@@ -143,17 +144,19 @@ def run_test(client, total, count, v_url):
             for obs_code, _ in val_mapping['Observation'].items():
                 search_string = f"http://loinc.org|{obs_code}"
                 parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
-                general, mapped_issues, errors = run_total_tests(client, resource_type, parameters, total, v_url,
-                                                                 "application/json")
-                obs_reports[obs_code] = mapped_issues
+                general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total,
+                                                                            v_url, "application/json")
+                obs_reports[obs_code] = {'count': num_found,
+                                         'issues': mapped_issues}
                 error_issues['issue'].extend(errors)
                 general_issues['issue'].extend(general)
             report[resource_type] = obs_reports
         else:
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
-            general, mapped_issues, errors = run_total_tests(client, resource_type, parameters, total, v_url,
-                                                             "application/json")
-            report[resource_type] = mapped_issues
+            general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total, v_url,
+                                                                        "application/json")
+            report[resource_type] = {'count': num_found,
+                                     'issues': mapped_issues}
             error_issues['issue'].extend(errors)
             general_issues['issue'].extend(general)
     report['general'] = general_issues
@@ -168,7 +171,13 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
     issues = list()
     error_issues = list()
     paging_result = None
+    num_found = 0
     try:
+        summary_params = {'_summary': 'count'}
+        summary_params.update(parameters)
+        result = client.get(resource_type, parameters=summary_params, paging=False)
+        print(result['total'])
+        num_found = min(result['total'], total)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
     except Exception as error:
         msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
@@ -195,18 +204,21 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
         general_issues.append(generate_issue("warning", "processing", msg))
     else:
         print(f"Found {paging_result.get_total()} for {resource_type}")
+        issue_set = IssueSet()
         for idx, bundle in enumerate(paging_result):
             print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed")
             try:
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
-                issues.append(op_outcome.get('issue', []))
+                for issue in op_outcome.get('issue', []):
+                    issue_set.add(issue)
             except Exception as error:
                 msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
                       f"report "
                 print(f"{msg}:\n{traceback.format_exception(error)}")
                 error_issues.append(generate_issue('error', 'processing', msg))
+        issues.extend(issue_set.get_issues())
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
-    return general_issues, issues, error_issues
+    return general_issues, issues, error_issues, num_found
 
 
 # TODO
@@ -240,7 +252,6 @@ def process_op_outcome(op_outcome, issue_map):
         issue_map.put_issue(issue)
 
 
-# NOTE: Can be quite costly!
 def analyse_distribution(client):
     print("Running distribution analysis")
     count_searches = json.loads(open(distribution_tests_file).read())

@@ -1,5 +1,6 @@
-import sys
 
+
+import sys
 import requests
 from requests import auth
 import json
@@ -11,22 +12,22 @@ resource_types = ["Condition", "Observation", "Procedure", "Medication", "Medica
 class FHIRClient:
 
     def __init__(self, url, user=None, pw=None, token=None, proxies=None, cert=None):
-        self.__url = url
+        self._url = url
         # Removed ['Prefer': 'handling=strict'] from headers due to issues with FHIR search requests
-        self.__headers = {'Content-Type': 'application/json'}
-        self.__auth = None
+        self._headers = {'Content-Type': 'application/json'}
+        self._auth = None
         if token is not None and len(token) > 0:
-            self.__headers['Authorization'] = f"Bearer: {token}"
+            self._headers['Authorization'] = f"Bearer: {token}"
         else:
-            self.__auth = auth.HTTPBasicAuth(user, pw)
-        self.__proxies = proxies
-        self.__cert = None
+            self._auth = auth.HTTPBasicAuth(user, pw)
+        self._proxies = proxies
+        self._cert = None
         if cert is not None and len(cert) > 0:
-            self.__cert = cert
+            self._cert = cert
 
     def __make_request(self, url_string):
-        response = requests.get(url=url_string, headers=self.__headers, proxies=self.__proxies,
-                                verify=self.__cert, auth=self.__auth)
+        response = requests.get(url=url_string, headers=self._headers, proxies=self._proxies,
+                                verify=self._cert, auth=self._auth)
         if response.status_code != 200:
             raise ConnectionError(f"Paging failed with status code {response.status_code} and "
                                   f"headers {response.headers}:\n{response.text}")
@@ -36,18 +37,18 @@ class FHIRClient:
     def get(self, resource_type, parameters=None, paging=True, get_all=False, max_cnt=sys.maxsize):
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of " \
                                                 f"{', '.join(resource_types)} "
-        request_string = f"{self.__url}/{resource_type}"
+        request_string = f"{self._url}/{resource_type}"
         if parameters is not None:
             param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
             request_string = f"{request_string}?{param_string}"
-        print(f"Requesting: {request_string} with headers {self.__headers}")
+        print(f"Requesting: {request_string} with headers {self._headers}")
         response = self.__make_request(request_string)
         bundle = json.loads(response.text)
         if not paging:
             return bundle
         else:
-            paging_result = PagingResult(bundle, max_cnt=max_cnt, headers=self.__headers, authorization=self.__auth,
-                                         proxies=self.__proxies, cert=self.__cert)
+            paging_result = PagingResult(bundle, max_cnt=max_cnt, headers=self._headers, authorization=self._auth,
+                                         proxies=self._proxies, cert=self._cert)
             if get_all:
                 bundles = list()
                 for result_page in paging_result:

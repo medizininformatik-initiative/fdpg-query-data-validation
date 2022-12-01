@@ -57,7 +57,7 @@ def setup():
     # Change CWD to base project directory
     os.chdir(os.path.join('.', '..'))
     print(os.getcwd())
-    docker_compose_template = "docker compose -p {} -f {} --env-file {} up -d"
+    docker_compose_template = "dockercompose -p {} -f {} --env-file {} up -d"
 
     print("Starting validation containers")
     command = docker_compose_template.format(project_context, docker_compose_validation, env_file).split()

@@ -164,6 +164,6 @@ check their data for issues after validation is done. The reports can be found u
 
 **NOTE:** No data not initially present during the build and startup phase of this tool is retained in the system and
 neither is data obtained from your server. However, data elements raising an issue will be most likely included in the 
-report!
+report, if they contain a faulty UCUM unit or LOINC code!
 
 ![alt text](architecture.png)

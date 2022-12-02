@@ -6,14 +6,13 @@ from requests import auth
 import json
 
 resource_types = ["Condition", "Observation", "Procedure", "Medication", "MedicationAdministration",
-                  "MedicationStatement", "Specimen", "Consent"]
+                  "MedicationStatement", "Specimen", "Consent", "StructureDefinition"]
 
 
 class FHIRClient:
 
     def __init__(self, url, user=None, pw=None, token=None, proxies=None, cert=None):
         self._url = url
-        # Removed ['Prefer': 'handling=strict'] from headers due to issues with FHIR search requests
         self._headers = {'Content-Type': 'application/json'}
         self._auth = None
         if token is not None and len(token) > 0:

@@ -1,6 +1,10 @@
+import glob
 import json
 import os
 import subprocess
+import time
+import traceback
+
 import dotenv
 import pytest
 import requests
@@ -16,7 +20,12 @@ ENDC = '\033[0m'
 docker_compose_validation = os.path.join('.', 'validation_service', 'docker-compose-validation.yml')
 docker_compose_vms = os.path.join('.', 'validation_mapper_service', 'docker-compose-vms.yml')
 project_context = 'feasibility-deploy'
-env_file = os.path.join('.env')
+env_file = '.env'
+fhir_server_volume_name = 'test-blaze-data'
+fhir_server_name = 'test-fhir-server'
+fhir_server_ports = [9000, 9000]  # host port, container port
+blaze_image = 'samply/blaze:0.18'
+data_dir = 'fhir_profiles'
 
 
 def test_fhirclient():
@@ -56,7 +65,7 @@ def test_get():
     resource_type = bundle.get('resourceType', None)
     assert resource_type == 'Bundle', f"Returned dictionary should represent resource instance of type Bundle but" \
                                       f" element 'resourceType' is {resource_type}"
-    total = len(bundle.get('entries', []))
+    total = len(bundle.get('entry', []))
     assert total == 10, f"Returned bundle should contain 10 entries but contains {total}"
 
     print("Testing get method with paging=True, get_all=False")
@@ -102,6 +111,101 @@ def page_through_paging_result(paging_result):
 
 
 @pytest.fixture(scope="session")
+def prepare_fhir_server(request):
+    setup_fhir_server()
+    request.addfinalizer(teardown_fhir_server)
+
+
+def setup_fhir_server():
+    print("Starting setup of FHIR server")
+    os.chdir(os.path.join('.', '..'))
+    print(f"Loading environment variables from {env_file}")
+    env_dict = dotenv.dotenv_values(env_file)
+    print("Setting up FHIR server")
+    print("Creating volume")
+    volume_create_command = f"docker volume create {fhir_server_volume_name}"
+    run_command(volume_create_command, "Failed to create volume", exit_on_err=True, env=env_dict, cwd=os.getcwd())
+    print("Starting container")
+    base_url = f'http://localhost:{fhir_server_ports[0]}'
+    docker_run_command = f"docker run --name {fhir_server_name}" \
+                         f" -p {':'.join([str(port) for port in fhir_server_ports])}" \
+                         f" -v {fhir_server_volume_name}:/app/data" \
+                         f" -e BASE_URL={base_url} -d {blaze_image}"
+    run_command(docker_run_command, "Failed to start FHIR server", exit_on_err=True, env=env_dict, cwd=os.getcwd())
+    try:
+        wait_until_healthy(blaze_base_url=base_url, interval=1, attempts=60)
+    except TimeoutError as e:
+        print("Health check failed. Stopping tests")
+        print(traceback.format_exception(e))
+        exit(-1)
+    print("Uploading data for testing")
+    fhir_server_url = f"{base_url}/fhir"
+    try:
+        upload_structure_definitions(fhir_server_url=fhir_server_url, data_dir=data_dir)
+    except Exception as e:
+        print("Upload failed. Stopping tests")
+        print(traceback.format_exception(e))
+        exit(-1)
+    print("Starting setup done")
+
+
+def teardown_fhir_server():
+    print("Shutting down FHIR server")
+    docker_container_rm_command = f"docker container rm {fhir_server_name} --force"
+    run_command(docker_container_rm_command, "Failed to shut down FHIR server", cwd=os.getcwd())
+    print("Removing volume")
+    docker_volume_rm_command = f"docker volume rm {fhir_server_volume_name}"
+    run_command(docker_volume_rm_command, "Failed to remove volume", cwd=os.getcwd())
+
+
+def upload_structure_definitions(fhir_server_url, data_dir):
+    for path in glob.glob(pathname='*.json', root_dir=data_dir, recursive=True):
+        print(f"Uploading file @ {path} to server @ {fhir_server_url}")
+        file_content = open(path).read()
+        response = requests.post(url=f"{fhir_server_url}/StructureDefinition", data=file_content)
+        if response.status_code != 200 or response.status_code != 201:
+            raise Exception(f"Upload failed with status code {response.status_code}:\n{response.txt}")
+
+
+def run_command(command, err_message, exit_on_err=False, env=None, cwd=os.getcwd()):
+    process = subprocess.run(command, stdout=subprocess.PIPE, env=env, shell=True, cwd=cwd)
+    if process.returncode != 0:
+        print(fail(f"{err_message}: Exit code {process.returncode}"))
+        if exit_on_err:
+            exit(-1)
+
+
+def wait_until_healthy(blaze_base_url, interval=1, attempts=60):
+    current_attempt = 1
+    while current_attempt <= attempts:
+        print(f"Checking health of FHIR server: {current_attempt}/{attempts}")
+        response = requests.get(url=f"{blaze_base_url}/health")
+        if response.status_code == 200:
+            print("FHIR server is healthy")
+            return
+        else:
+            time.sleep(interval)
+    raise TimeoutError(f"FHIR service wasn't healthy after {interval*attempts} seconds")
+
+
+def warn(message):
+    return color(message, WARN)
+
+
+def fail(message):
+    return color(message, FAIL)
+
+
+def color(message, color_code):
+    return f"{color_code}{message}{ENDC}"
+
+
+if __name__ == "__main__":
+    setup_fhir_server()
+    teardown_fhir_server()
+
+
+'''
 def prepare_setup(request):
     setup()
     request.addfinalizer(teardown)
@@ -154,20 +258,4 @@ def teardown():
     process = subprocess.run(command, stdout=subprocess.PIPE, shell=True)
     if process.returncode != 0:
         print(f"Failed to remove volumes: Exit code {process.returncode}")
-
-
-def warn(message):
-    return color(message, WARN)
-
-
-def fail(message):
-    return color(message, FAIL)
-
-
-def color(message, color_code):
-    return f"{color_code}{message}{ENDC}"
-
-
-if __name__ == "__main__":
-    setup()
-    # teardown()
+'''

@@ -12,7 +12,6 @@ import requests
 from fhir import FHIRClient
 from fhir import PagingResult
 
-
 WARN = '\033[93m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
@@ -23,7 +22,7 @@ project_context = 'feasibility-deploy'
 env_file = '.env'
 fhir_server_volume_name = 'test-blaze-data'
 fhir_server_name = 'test-fhir-server'
-fhir_server_ports = [9000, 9000]  # host port, container port
+fhir_server_ports = [9000, 8080]  # host port, container port
 blaze_image = 'samply/blaze:0.18'
 data_dir = 'fhir_profiles'
 
@@ -56,7 +55,7 @@ def test_fhirclient():
 
 def test_get():
     print("Testing get method with paging=False, get_all=False")
-    url = "http://localhost:8090/fhir"
+    url = f"http://localhost:{fhir_server_ports[0]}/fhir"
     client = FHIRClient(url=url)
     params = {'_count': 10}
     bundle = client.get(resource_type='StructureDefinition', parameters=params, paging=False, get_all=False)
@@ -85,7 +84,8 @@ def test_get():
     print("Testing get method with paging=True, get_all=False, max_cnt=30")
     client = FHIRClient(url=url)
     max_cnt = 30
-    paging_result = client.get(resource_type='StructureDefinition', parameters=params, paging=True, get_all=False, max_cnt=max_cnt)
+    paging_result = client.get(resource_type='StructureDefinition', parameters=params, paging=True, get_all=False,
+                               max_cnt=max_cnt)
     assert isinstance(paging_result, PagingResult), f"Return is not of type PagingResult" \
                                                     f" but is instead {type(paging_result)}"
     if expected_total < max_cnt:
@@ -96,10 +96,39 @@ def test_get():
         assert total == max_cnt, f"Paging returned unexpected number of resource instances:" \
                                  f" {total} (returned) vs {max_cnt} (max_cnt)"
 
+    print("Testing get method with paging=True, get_all=True")
+    client = FHIRClient(url=url)
+    result_bundles = client.get(resource_type='StructureDefinition', parameters=params, paging=True, get_all=True)
+    assert isinstance(result_bundles, list), f"Return is not a list but is instead {type(result_bundles)}"
+    try:
+        total = page_through_paging_result(result_bundles)
+        assert total == expected_total, f"Wrong number of entries were returned:" \
+                                        f" {total} returned vs {expected_total} expected"
+    except AssertionError as e:
+        # Pass on AssertionError instance
+        raise e
+    except Exception as e:
+        print(warn("Could not process list of returned bundles. Partially kipping test"))
+        print(warn(traceback.format_exception(e)))
 
+    print("Testing get method with paging=True, get_all=True, max_cnt=30")
+    client = FHIRClient(url=url)
+    result_bundles = client.get(resource_type='StructureDefinition', parameters=params, paging=True, get_all=True,
+                                max_cnt=30)
+    assert isinstance(result_bundles, list), f"Return is not a list but is instead {type(result_bundles)}"
+    total = page_through_paging_result(result_bundles)
+    assert total == 30, f"Wrong number of entries were returned: {total} returned vs {expected_total} expected"
+
+
+'''
+Works for paging through list of bundles as well as PagingResult instance as both enable iteration through their content
+as well as return a dictionary representation of a bundle in each iteration
+'''
 def page_through_paging_result(paging_result):
     total = 0
     for result_page in paging_result:
+        assert isinstance(result_page, dict), f"Element in return has to be a dictionary" \
+                                              f" but is instead {type(result_page)}"
         entries = result_page.get('entry', None)
         if entries is not None:
             total += len(entries)
@@ -110,7 +139,7 @@ def page_through_paging_result(paging_result):
     return total
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def prepare_fhir_server(request):
     setup_fhir_server()
     request.addfinalizer(teardown_fhir_server)
@@ -128,7 +157,7 @@ def setup_fhir_server():
     print("Starting container")
     base_url = f'http://localhost:{fhir_server_ports[0]}'
     docker_run_command = f"docker run --name {fhir_server_name}" \
-                         f" -p {':'.join([str(port) for port in fhir_server_ports])}" \
+                         f" -p {fhir_server_ports[0]}:{fhir_server_ports[1]}" \
                          f" -v {fhir_server_volume_name}:/app/data" \
                          f" -e BASE_URL={base_url} -d {blaze_image}"
     run_command(docker_run_command, "Failed to start FHIR server", exit_on_err=True, env=env_dict, cwd=os.getcwd())
@@ -141,7 +170,7 @@ def setup_fhir_server():
     print("Uploading data for testing")
     fhir_server_url = f"{base_url}/fhir"
     try:
-        upload_structure_definitions(fhir_server_url=fhir_server_url, data_dir=data_dir)
+        upload_structure_definitions(fhir_server_url=fhir_server_url, file_dir=data_dir)
     except Exception as e:
         print("Upload failed. Stopping tests")
         print(traceback.format_exception(e))
@@ -158,13 +187,14 @@ def teardown_fhir_server():
     run_command(docker_volume_rm_command, "Failed to remove volume", cwd=os.getcwd())
 
 
-def upload_structure_definitions(fhir_server_url, data_dir):
-    for path in glob.glob(pathname='*.json', root_dir=data_dir, recursive=True):
+def upload_structure_definitions(fhir_server_url, file_dir):
+    for path in glob.glob(pathname=os.path.join(file_dir, '**', '*.json'), recursive=True):
         print(f"Uploading file @ {path} to server @ {fhir_server_url}")
         file_content = open(path).read()
-        response = requests.post(url=f"{fhir_server_url}/StructureDefinition", data=file_content)
-        if response.status_code != 200 or response.status_code != 201:
-            raise Exception(f"Upload failed with status code {response.status_code}:\n{response.txt}")
+        response = requests.post(url=f"{fhir_server_url}/StructureDefinition", data=file_content,
+                                 headers={'Content-Type': 'application/json'})
+        if response.status_code != 200 and response.status_code != 201:
+            raise Exception(f"Upload failed with status code {response.status_code}:\n{response.text}")
 
 
 def run_command(command, err_message, exit_on_err=False, env=None, cwd=os.getcwd()):
@@ -176,16 +206,21 @@ def run_command(command, err_message, exit_on_err=False, env=None, cwd=os.getcwd
 
 
 def wait_until_healthy(blaze_base_url, interval=1, attempts=60):
+    print(f"Checking health for FHIR server @{blaze_base_url}/health")
     current_attempt = 1
     while current_attempt <= attempts:
         print(f"Checking health of FHIR server: {current_attempt}/{attempts}")
-        response = requests.get(url=f"{blaze_base_url}/health")
-        if response.status_code == 200:
-            print("FHIR server is healthy")
-            return
-        else:
-            time.sleep(interval)
-    raise TimeoutError(f"FHIR service wasn't healthy after {interval*attempts} seconds")
+        try:
+            response = requests.get(url=f"{blaze_base_url}/health")
+            if response.status_code == 200:
+                print("FHIR server is healthy")
+                return
+        except:
+            # SocketTimeoutException while service is still not up
+            pass
+        current_attempt += 1
+        time.sleep(interval)
+    raise TimeoutError(f"FHIR service wasn't healthy after {interval * attempts} seconds")
 
 
 def warn(message):
@@ -203,7 +238,6 @@ def color(message, color_code):
 if __name__ == "__main__":
     setup_fhir_server()
     teardown_fhir_server()
-
 
 '''
 def prepare_setup(request):

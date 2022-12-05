@@ -20,7 +20,7 @@
                 "code": {
                     "coding": [
                         {
-                            "system": "system": "http://snomed.info/sct",
+                            "system": "http://snomed.info/sct",
                             "code": "S02.0"
                         }
                     ],

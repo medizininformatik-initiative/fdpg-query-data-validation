@@ -1,7 +1,6 @@
 import glob
 import json
 import os
-import subprocess
 import time
 import traceback
 
@@ -11,14 +10,9 @@ import requests
 
 from fhir import FHIRClient
 from fhir import PagingResult
+from testing_utilities import run_command, warn
 
-WARN = '\033[93m'
-FAIL = '\033[91m'
-ENDC = '\033[0m'
 
-docker_compose_validation = os.path.join('.', 'validation_service', 'docker-compose-validation.yml')
-docker_compose_vms = os.path.join('.', 'validation_mapper_service', 'docker-compose-vms.yml')
-project_context = 'feasibility-deploy'
 env_file = '.env'
 fhir_server_volume_name = 'test-blaze-data'
 fhir_server_name = 'test-fhir-server'
@@ -197,14 +191,6 @@ def upload_structure_definitions(fhir_server_url, file_dir):
             raise Exception(f"Upload failed with status code {response.status_code}:\n{response.text}")
 
 
-def run_command(command, err_message, exit_on_err=False, env=None, cwd=os.getcwd()):
-    process = subprocess.run(command, stdout=subprocess.PIPE, env=env, shell=True, cwd=cwd)
-    if process.returncode != 0:
-        print(fail(f"{err_message}: Exit code {process.returncode}"))
-        if exit_on_err:
-            exit(-1)
-
-
 def wait_until_healthy(blaze_base_url, interval=1, attempts=60):
     print(f"Checking health for FHIR server @{blaze_base_url}/health")
     current_attempt = 1
@@ -223,73 +209,6 @@ def wait_until_healthy(blaze_base_url, interval=1, attempts=60):
     raise TimeoutError(f"FHIR service wasn't healthy after {interval * attempts} seconds")
 
 
-def warn(message):
-    return color(message, WARN)
-
-
-def fail(message):
-    return color(message, FAIL)
-
-
-def color(message, color_code):
-    return f"{color_code}{message}{ENDC}"
-
-
 if __name__ == "__main__":
     setup_fhir_server()
     teardown_fhir_server()
-
-'''
-def prepare_setup(request):
-    setup()
-    request.addfinalizer(teardown)
-
-
-def setup():
-    print("Starting setup")
-    os.chdir(os.path.join('.', '..'))
-    print(f"Loading environment variables from {env_file}")
-    env_dict = dotenv.dotenv_values(env_file)
-    print("Starting containers")
-    docker_compose_template = "docker compose -p {} -f {} --env-file {} up -d"
-
-    print("Starting validation containers")
-    command = docker_compose_template.format(project_context, os.path.join(os.getcwd(), docker_compose_validation),
-                                             os.path.join(os.getcwd(), env_file))
-    process = subprocess.run(command, stdout=subprocess.PIPE, env=env_dict, shell=True, cwd=os.getcwd())
-    if process.returncode != 0:
-        print(fail(f"Failed to start validation containers: Exit code {process.returncode}"))
-        exit(-1)
-
-    print("Starting validation mapping service container")
-    command = docker_compose_template.format(project_context, os.path.join(os.getcwd(), docker_compose_vms),
-                                             os.path.join(os.getcwd(), env_file))
-    process = subprocess.run(command, stdout=subprocess.PIPE, env=env_dict, shell=True, cwd=os.getcwd())
-    if process.returncode != 0:
-        print(fail(f"Failed to start validation mapping service container: Exit code {process.returncode}"))
-        exit(-1)
-
-
-def teardown():
-    print("Starting teardown")
-    print("Removing containers and volumes")
-    docker_compose_down_template = "docker compose -p {} -f {} down"
-
-    print("Removing validation mapping service container")
-    command = docker_compose_down_template.format(project_context, docker_compose_vms)
-    process = subprocess.run(command, stdout=subprocess.PIPE, shell=True)
-    if process.returncode != 0:
-        print(fail(f"Failed to remove validation mapping service container: Exit code {process.returncode}"))
-
-    print("Removing validation containers")
-    command = docker_compose_down_template.format(project_context, docker_compose_validation)
-    process = subprocess.run(command, stdout=subprocess.PIPE, shell=True)
-    if process.returncode != 0:
-        print(fail(f"Failed to remove validation containers: Exit code {process.returncode}"))
-
-    print("Removing volumes")
-    command = "docker volume rm validation-structure-definition-server-data"
-    process = subprocess.run(command, stdout=subprocess.PIPE, shell=True)
-    if process.returncode != 0:
-        print(f"Failed to remove volumes: Exit code {process.returncode}")
-'''

@@ -176,7 +176,6 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
         summary_params = {'_summary': 'count'}
         summary_params.update(parameters)
         result = client.get(resource_type, parameters=summary_params, paging=False)
-        print(result['total'])
         num_found = min(result['total'], total)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
     except Exception as error:

@@ -66,6 +66,10 @@ def test_simple_test():
                                   f"\n{operation_outcome}"
 
 
+def test_observation_test():
+    pass
+
+
 def parse_json(data):
     try:
         return json.loads(data)

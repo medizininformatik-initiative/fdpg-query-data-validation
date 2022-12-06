@@ -48,7 +48,7 @@ services:
     ports:
       - "${FHIR_DATA_VALIDATOR_PORT:-8091}:8081"
     healthcheck:
-      test: 'curl -X POST http://fhir-data-validator:8081/validate -H "Content-Type: application/json" || exit 1'
+      test: 'curl -X POST -d "@validator_healthcheck_bundle.json" http://fhir-data-validator:8081/validate -H "Content-Type: application/json" || exit 1'
       interval: 5s
       retries: 20
       start_period: 20s
@@ -59,7 +59,7 @@ services:
       validation-terminology-service:
         condition: service_healthy
   validation-mapping-service:
-    image: "ghcr.io/itcr-uni-luebeck/validation-profile-mapper:0.1.15"
+    image: "ghcr.io/itcr-uni-luebeck/validation-profile-mapper:0.1.17"
     environment:
       SERVICE_PORT: "8082"
       VALIDATOR_URL: "http://fhir-data-validator:8081/validate"

@@ -2,13 +2,12 @@ import glob
 import json
 import os
 import traceback
-
 import dotenv
 import pytest
-import requests
-from requests import JSONDecodeError
 
+from requests import JSONDecodeError
 from testing_utilities import run_command, health_check
+from main import simple_test, generate_issue
 
 
 docker_compose_validation = os.path.join('.', 'validation_service', 'docker-compose-validation.yml')
@@ -37,23 +36,22 @@ def test_simple_test():
 
     print("Testing with valid data")
     headers = {'Content-Type': 'application/json'}
-    response = requests.post(url=validation_url, data=valid_condition_bundle, headers=headers)
-    if response.status_code != 200:
-        print(f"Failed to make request to {validation_url}. Partially skipping test:\n{response.text}")
-    else:
-        operation_outcome = parse_json(response.text)
+    try:
+        operation_outcome = simple_test(data=valid_condition_bundle, v_url=validation_url,
+                                        content_type='application/json')
         resource_type_test(operation_outcome, 'OperationOutcome')
         issues = operation_outcome.get('issues', [])
         if len(issues) == 1:
             assert issues.get(0).get('diagnostics') == 'No issues detected during validation', \
                 f"No issues should've been detected. Issues were: {issues}"
+    except JSONDecodeError as error:
+        print("Response body could not be parsed as JSON object. Partially skipping tests.")
+        print(traceback.format_exception(error))
 
     print("Testing with invalid data")
-    response = requests.post(url=validation_url, data=invalid_condition_bundle, headers=headers)
-    if response.status_code != 200:
-        print(f"Failed to make request to {validation_url}. Partially skipping test:\n{response.text}")
-    else:
-        operation_outcome = parse_json(response.text)
+    try:
+        operation_outcome = simple_test(data=valid_condition_bundle, v_url=validation_url,
+                                        content_type='application/json')
         resource_type_test(operation_outcome, 'OperationOutcome')
         issues = operation_outcome.get('issue', [])
         has_severe_issues = False
@@ -64,10 +62,30 @@ def test_simple_test():
                 break
         assert has_severe_issues, f"Issues of severity higher than 'information' should've been found:" \
                                   f"\n{operation_outcome}"
+    except JSONDecodeError as error:
+        print("Response body could not be parsed as JSON object. Partially skipping tests.")
+        print(traceback.format_exception(error))
 
 
 def test_observation_test():
     pass
+
+
+def test_generate_issue():
+    print("Testing generate_issue method")
+    issue_severity = "error"
+    issue_type = "processing"
+    diagnostics = "Something failed"
+    issue = generate_issue(severity=issue_severity, issue_type=issue_type, diagnostics=diagnostics)
+    assert issue['severity'] == issue_severity, f"Issue severities don't match: {issue['severity']} (present) vs" \
+                                                f" {issue_severity} (expected)"
+    assert issue['type'] == issue_type, f"Issue types don't match: {issue['type']} (present) vs {issue_type} (expected)"
+    assert issue['diagnostics'] == diagnostics, f"Diagnostics don't match: {issue['diagnostics']} (present) vs" \
+                                                f" {diagnostics} (expected)"
+
+
+def test_run_total_tests():
+    print("Testing run_total_tests method")
 
 
 def parse_json(data):

@@ -50,7 +50,7 @@ def make_bundle(bundles):
 def simple_test(data, v_url, content_type):
     try:
         response = requests.post(url=v_url, data=data, headers={"Content-Type": content_type})
-        return json.loads(response.text)
+        return response.json()
     except Exception as error:
         raise Exception("Simple test failed", error)
 
@@ -64,34 +64,6 @@ def observation_test(data, v_url, content_type):
             response = str(exception)
         results[k] = response
     return results
-
-
-def map_bundle_id_to_entry_idx(bundle):
-    return [entry['resource']['id'] for entry in bundle.get('entry', [])]
-
-
-def map_issues_to_entry(bundle, op_outcome):
-    id_index = map_bundle_id_to_entry_idx(bundle)
-    id_issue_map = dict()
-    for issue in op_outcome.get('issue', []):
-        if 'location' in issue:
-            fhir_path = issue.get('location', [])[0]
-            # Due to using the HAPI Validator and Bundle instances the index of the resource instance in the entry
-            # list is assumed to be contained in the second component of the FHIR path expression Form:
-            # Bundle.entry[x]... where x is some number
-            entry_idx = int(fhir_path.split('.')[1][6:-1])
-            resource_id = id_index[entry_idx]
-            issue_entry = {'issue': issue, 'element': get_issue_element(bundle, fhir_path)}
-            if resource_id in id_issue_map:
-                id_issue_map[resource_id].append(issue_entry)
-            else:
-                id_issue_map[resource_id] = [issue_entry]
-        else:
-            if 'not-assignable' in id_issue_map:
-                id_issue_map['not-assignable'].append(issue)
-            else:
-                id_issue_map['not-assignable'] = [issue]
-    return id_issue_map
 
 
 def get_issue_element(_bundle, _fhir_path_expr):

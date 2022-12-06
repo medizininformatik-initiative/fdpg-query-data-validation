@@ -5,12 +5,8 @@ python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --n
 echo "Uploading own StructureDefinition instances to Blaze@${BALZE_SERVER_URL}"
 for file in ./fhir_profiles/**/*.json
 do
-  curl -vX POST -d @"$file" -H "Content-Type: application/json" "${BLAZE_SERVER_URL}/StructureDefinition"
-  echo "Uploading ${file}"
-done
-for file in ./fhir_profiles/**/*.xml
-do
-  curl -vX POST -d @"$file" -H "Content-Type: application/xml" "${BLAZE_SERVER_URL}/StructureDefinition"
+  id="$(cat $file | jq -r '.id')"
+  curl -vX PUT -d @"$file" -H "Content-Type: application/json" "${BLAZE_SERVER_URL}/StructureDefinition/${id}"
   echo "Uploading ${file}"
 done
 echo "Upload finished"

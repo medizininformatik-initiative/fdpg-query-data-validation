@@ -26,13 +26,14 @@ services:
       validation-structure-definition-server:
         condition: service_healthy
   validation-terminology-service:
-    image: "ghcr.io/itcr-uni-luebeck/termite:0.1.13-RC"
+    image: "ghcr.io/itcr-uni-luebeck/termite:0.1.15"
     ports:
       - "${TERMINOLOGY_SERVICE_PORT:-8093}:8083"
     environment:
       TERMINOLOGY_SERVICE_PORT: 8083
     volumes:
       - ${VALUE_SET_DIRECTORY:-./value_sets}:/app/value_sets
+      - ${CODE_SYSTEM_DIRECTORY:-./code_systems}:/app/code_systems
     healthcheck:
       test: curl --fail http://validation-terminology-service:8083/fhir/metadata || exit 1
       interval: 5s

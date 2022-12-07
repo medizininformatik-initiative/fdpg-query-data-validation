@@ -33,6 +33,7 @@ services:
       TERMINOLOGY_SERVICE_PORT: 8083
     volumes:
       - ${VALUE_SET_DIRECTORY:-../value_sets}:/app/value_sets
+      - ${CODE_SYSTEM_DIRECTORY:-./code_systems}:/app/code_systems
     healthcheck:
       test: curl --fail http://validation-terminology-service:8083/fhir/metadata || exit 1
       interval: 5s

@@ -7,6 +7,7 @@ test.py
 /api/terminology_data/*.json
 
 /value_sets/
+/code_systems/
 /report/
 /home/
 /certificates/

@@ -5,6 +5,7 @@ ENV BLAZE_SERVER_URL "http://localhost:8090/fhir"
 
 VOLUME ["/app/profiles"]
 RUN apk add curl
+RUN apk add jq
 RUN apk add --no-cache bash
 
 # Install FHIR Populator

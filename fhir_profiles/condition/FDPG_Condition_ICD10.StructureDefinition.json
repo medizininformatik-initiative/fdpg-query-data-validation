@@ -1,9 +1,9 @@
 {
   "resourceType": "StructureDefinition",
   "id": "71d5aa8f-74aa-4c43-845c-a6400aad8bd9",
-  "url": "https://example.org/fhir/StructureDefinition/FDPG_Condition_ICD10",
+  "url": "https://example.org/fhir/StructureDefinition/FDPG_Condition_ICD10-GM",
   "name": "FDPG_Condition_ICD10",
-  "status": "draft",
+  "status": "active",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,

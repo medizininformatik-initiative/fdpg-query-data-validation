@@ -3,7 +3,7 @@
   "id": "86ee9083-f71d-4ee5-9e83-b3fbe4e90d46",
   "url": "https://example.org/fhir/StructureDefinition/ABIDE_MedicationStatement_Ref",
   "name": "ABIDE_MedicationStatement_Ref",
-  "status": "draft",
+  "status": "active",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,

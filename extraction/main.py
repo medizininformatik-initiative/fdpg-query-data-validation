@@ -7,7 +7,7 @@ import json
 
 from IssueMap import IssueMap
 from IssueSet import IssueSet
-from fhir import FHIRClient
+from fhir import FHIRClient, HttpError
 
 cert_dir = 'certificates'
 distribution_tests_file = os.path.join('distribution_tests', 'distribution_tests.json')

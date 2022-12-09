@@ -28,8 +28,8 @@ class FHIRClient:
         response = requests.get(url=url_string, headers=self._headers, proxies=self._proxies,
                                 verify=self._cert, auth=self._auth)
         if response.status_code != 200:
-            raise ConnectionError(f"Paging failed with status code {response.status_code} and "
-                                  f"headers {response.headers}:\n{response.text}")
+            raise HttpError(response.status_code, f"Paging failed with status code {response.status_code} and "
+                            f"headers {response.headers}:\n{response.text}")
         else:
             return response
 
@@ -113,3 +113,11 @@ def get_next_url(bundle):
         # print(f"Failed to retrieve bundle link")
         return None
     return next_url
+
+
+class HttpError(ConnectionError):
+
+    def __init__(self, status_code, message):
+        assert status_code != 200, "Status code must not be 200!"
+        self.status_code = status_code
+        super().__init__(message)

@@ -2,7 +2,7 @@
   "resourceType": "StructureDefinition",
   "url": "https://example.org/fhir/StructureDefinition/FDPG_Observation_Default",
   "name": "FDPG_Observation_Default",
-  "status": "draft",
+  "status": "active",
   "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,

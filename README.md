@@ -21,7 +21,7 @@ Docker Desktop with integrated docker-compose plugin (https://docs.docker.com/de
 
 ### Step 2 - Clone this Repository to your virtual machine
 ssh to your virtual machine and switch to sudo `sudo -s` <br />
-Designate a folder for your setup in which to clone the repositiory, we suggest (`cd /opt`) <br />
+Designate a folder for your setup in which to clone the repository, we suggest (`cd /opt`) <br />
 Navigate to the directory and clone this repository from GitHub: ```git clone https://github.com/medizininformatik-initiative/fdpg-query-data-validation.git``` <br />
 Navigate into the project directory: `cd /opt/fdpg-query-data-validation` <br />
 Checkout the version (git tag) of the fdpg-query-data-validation you would like to install: `git checkout tags/<your-tag-name-here>` <br />
@@ -34,15 +34,16 @@ If you have set up the tool before compare the .env to the .env.default env file
 ### Step 4 - Configure your validation tool
 
 This project will perform an extraction and validation script against an existing FHIR Server running in an Docker Project-Context. If you don't have a FHIR server set up already. Follow the guidance in the **Deploying a FHIR server** section.
-Change the following enviroment variables to match the configuration of the FHIR Server /.env according to the paragraph **Configuration of this README:
+Change the following environment variables to match the configuration of the FHIR Server /.env according to the paragraph **Configuration of this README:
 
 - FHIR_SERVER_URL
 - PROJECT_CONTEXT
 
-### Step 5 Download required value sets
+### Step 5 Download required value sets and code systems
 
-The required ValueSets for the validation are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453) 
-Upload the value_sets_*.zip file to your server, unpack it and copy the ValueSets files to your value_sets folder. Afterwards return to your installation dir.
+The required ValueSets and CodeSystems for the validation are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453) 
+Upload the value_sets_*.zip and code_systems_*.zip file to your server, unpack them and copy the ValueSets files to your value_sets folder and the CodeSystem files to your code_system folder respectively. 
+Afterwards return to your installation dir.
 
 ```bash
 sudo -s
@@ -53,6 +54,16 @@ cd value_sets
 cp * /opt/fdpg-query-data-validation/value_sets
 cd /opt/fdpg-query-data-validation
 ```     
+
+```bash
+sudo -s
+mkdir /<path>/<to>/<downloaded>/<CodeSystem>
+cd /<path>/<to>/<downloaded>/<CodeSystem>
+unzip code_systems_*.zip
+cd code_systems
+cp * /opt/fdpg-query-data-validation/code_systems
+cd /opt/fdpg-query-data-validation
+```   
 
 If you are running this on a **Linux** machine you will need to grant read/write permissions for the directory in which
 you want the generated reports to end up. By the default, the location would be **/opt/fdpg-query-data-validation/report**.

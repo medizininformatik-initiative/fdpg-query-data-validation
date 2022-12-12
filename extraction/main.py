@@ -144,25 +144,48 @@ def run_test(client, total, count, v_url):
             for obs_code, _ in val_mapping['Observation'].items():
                 search_string = f"http://loinc.org|{obs_code}"
                 parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
+                get_and_append_issues(client, resource_type, parameters, total, v_url, key=obs_code, report=obs_reports,
+                                      error_issues=error_issues, general_issues=general_issues)
+                '''
                 general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total,
                                                                             v_url, "application/json")
-                obs_reports[obs_code] = {'count': num_found,
-                                         'issues': mapped_issues}
+                if len(mapped_issues) > 1 or (len(mapped_issues) == 1 and mapped_issues[0].get(
+                        'diagnostics') != 'No issues detected during validation'):
+                    obs_reports[obs_code] = {'count': num_found,
+                                             'issues': mapped_issues}
                 error_issues['issue'].extend(errors)
                 general_issues['issue'].extend(general)
+                '''
             report[resource_type] = obs_reports
         else:
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
+            get_and_append_issues(client, resource_type, parameters, total, v_url, key=resource_type, report=report,
+                                  error_issues=error_issues, general_issues=general_issues)
+            '''
             general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total, v_url,
                                                                         "application/json")
-            report[resource_type] = {'count': num_found,
-                                     'issues': mapped_issues}
+            if len(mapped_issues) > 1 or (len(mapped_issues) == 1 and mapped_issues[0].get(
+                    'diagnostics') != 'No issues detected during validation'):
+                report[resource_type] = {'count': num_found,
+                                         'issues': mapped_issues}
             error_issues['issue'].extend(errors)
             general_issues['issue'].extend(general)
+            '''
     report['general'] = general_issues
     report['error'] = error_issues
     print("All done")
     return report
+
+
+def get_and_append_issues(client, resource_type, parameters, total, v_url, key, report, error_issues, general_issues):
+    general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total, v_url,
+                                                                "application/json")
+    if len(mapped_issues) > 1 or (len(mapped_issues) == 1 and mapped_issues[0].get(
+            'diagnostics') != 'No issues detected during validation'):
+        report[key] = {'count': num_found,
+                       'issues': mapped_issues}
+    error_issues['issue'].extend(errors)
+    general_issues['issue'].extend(general)
 
 
 # Returns issues grouped by the instance ID

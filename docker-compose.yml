@@ -78,7 +78,7 @@ services:
       fhir-data-validator:
         condition: service_healthy
   fhir-data-extraction:
-    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.3.15"
+    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.3.18"
     environment:
       FHIR_SERVER_URL: "${FHIR_SERVER_URL:-http://localhost:8080/fhir}"
       TOTAL: "${TOTAL:-500}"

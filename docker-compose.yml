@@ -20,6 +20,10 @@ services:
     environment:
       BLAZE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       PACKAGES: "${SIMPLIFIER_PACKAGES}"
+      # Necessary for downloading packages via proxy
+      # See https://stackoverflow.com/questions/8287628/proxies-with-python-requests-module
+      HTTP_PROXY: "${PACKAGE_DOWNLOAD_PROXY}"
+      HTTPS_PROXY: "${PACKAGE_DOWNLOAD_PROXY}"
     volumes:
       - ${FHIR_PROFILE_DIRECTORY:-./fhir_profiles}:/app/fhir_profiles
     depends_on:
@@ -87,8 +91,8 @@ services:
       FHIR_USERNAME: "${FHIR_USERNAME}"
       FHIR_PASSWORD: "${FHIR_PASSWORD}"
       FHIR_TOKEN: "${FHIR_TOKEN}"
-      HTTP_PROXY: "${HTTP_PROXY}"
-      HTTPS_PROXY: "${HTTPS_PROXY}"
+      FHIR_HTTP_PROXY: "${FHIR_HTTP_PROXY}"
+      FHIR_HTTPS_PROXY: "${FHIR_HTTPS_PROXY}"
       CA_FILE_NAME: "${CA_FILE_NAME}"
     volumes:
       - ${REPORT_LOCATION:-./report}:/app/report

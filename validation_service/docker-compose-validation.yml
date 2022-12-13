@@ -20,6 +20,10 @@ services:
     environment:
       BLAZE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       PACKAGES: "${SIMPLIFIER_PACKAGES}"
+      # Necessary for downloading packages via proxy
+      # See https://stackoverflow.com/questions/8287628/proxies-with-python-requests-module
+      HTTP_PROXY: "${PACKAGE_DOWNLOAD_PROXY}"
+      HTTPS_PROXY: "${PACKAGE_DOWNLOAD_PROXY}"
     volumes:
       - ${FHIR_PROFILE_DIRECTORY:-../fhir_profiles}:/app/fhir_profiles
     depends_on:

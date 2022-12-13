@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   fhir-data-extraction:
-    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.3.15"
+    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.3.18"
     environment:
       FHIR_SERVER_URL: "${FHIR_SERVER_URL:-http://localhost:8080/fhir}"
       TOTAL: "${TOTAL:-500}"
@@ -10,8 +10,8 @@ services:
       FHIR_USERNAME: "${FHIR_USERNAME}"
       FHIR_PASSWORD: "${FHIR_PASSWORD}"
       FHIR_TOKEN: "${FHIR_TOKEN}"
-      HTTP_PROXY: "${HTTP_PROXY}"
-      HTTPS_PROXY: "${HTTPS_PROXY}"
+      FHIR_HTTP_PROXY: "${FHIR_HTTP_PROXY}"
+      FHIR_HTTPS_PROXY: "${FHIR_HTTPS_PROXY}"
       CA_FILE_NAME: "${CA_FILE_NAME}"
     volumes:
       - ${REPORT_LOCATION:-../report}:/app/report

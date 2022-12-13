@@ -1,7 +1,7 @@
 #!/bin/bash
 shopt -s globstar
 echo "Uploading profiles from Simplifier to Blaze@${BLAZE_SERVER_URL}"
-python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only-put --package ${PACKAGES}
+python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only-put --http-proxy ${HTTP_PACKAGE_DOWNLOAD_PROXY} --https-proxy ${HTTPS_PACKAGE_DOWNLOAD_PROXY} --package ${PACKAGES}
 echo "Uploading own StructureDefinition instances to Blaze@${BALZE_SERVER_URL}"
 for file in ./fhir_profiles/**/*.json
 do

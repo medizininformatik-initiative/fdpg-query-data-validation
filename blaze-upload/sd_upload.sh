@@ -3,11 +3,11 @@ shopt -s globstar
 echo "Uploading profiles from Simplifier to Blaze@${BLAZE_SERVER_URL}"
 http_proxy=''
 https_proxy=''
-if [[ -z "${HTTP_PACKAGE_DOWNLOAD_PROXY}"]]
+if [[ -z "${HTTP_PACKAGE_DOWNLOAD_PROXY}" ]]
 then
   http_proxy="${HTTP_PACKAGE_DOWNLOAD_PROXY}"
 fi
-if [[ -z "${HTTPS_PACKAGE_DOWNLOAD_PROXY}"]]
+if [[ -z "${HTTPS_PACKAGE_DOWNLOAD_PROXY}" ]]
 then
   https_proxy="${HTTPS_PACKAGE_DOWNLOAD_PROXY}"
 fi

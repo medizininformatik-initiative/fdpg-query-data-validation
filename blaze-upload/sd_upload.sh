@@ -3,10 +3,12 @@ shopt -s globstar
 echo "Uploading profiles from Simplifier to Blaze@${BLAZE_SERVER_URL}"
 http_proxy=''
 https_proxy=''
-if [[ -z "${HTTP_PACKAGE_DOWNLOAD_PROXY}"]]; then
+if [[ -z "${HTTP_PACKAGE_DOWNLOAD_PROXY}"]]
+then
   http_proxy="${HTTP_PACKAGE_DOWNLOAD_PROXY}"
 fi
-if [[ -z "${HTTPS_PACKAGE_DOWNLOAD_PROXY}"]]; then
+if [[ -z "${HTTPS_PACKAGE_DOWNLOAD_PROXY}"]]
+then
   https_proxy="${HTTPS_PACKAGE_DOWNLOAD_PROXY}"
 fi
 python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only-put --http-proxy ${http_proxy} --https-proxy ${https_proxy} --package ${PACKAGES}

@@ -7,7 +7,7 @@ import json
 
 from IssueMap import IssueMap
 from IssueSet import IssueSet
-from fhir import FHIRClient, HttpError
+from fhir import FHIRClient
 
 cert_dir = 'certificates'
 distribution_tests_file = os.path.join('distribution_tests', 'distribution_tests.json')
@@ -226,7 +226,7 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
         print(msg)
         general_issues.append(generate_issue("warning", "processing", msg))
     else:
-        print(f"Found {paging_result.get_total()} for {resource_type}")
+        print(f"Found {paging_result.total} for {resource_type}")
         issue_set = IssueSet()
         for idx, bundle in enumerate(paging_result):
             print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed")

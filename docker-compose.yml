@@ -16,7 +16,7 @@ services:
       start_period: 20s
       timeout: 5s
   validation-structure-definition-upload:
-    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/blaze-upload:0.3.24
+    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/blaze-upload:0.3.25
     environment:
       BLAZE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       PACKAGES: "${SIMPLIFIER_PACKAGES}"

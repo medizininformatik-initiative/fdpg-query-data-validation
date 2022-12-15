@@ -1,5 +1,4 @@
 
-
 import sys
 import requests
 from requests import auth
@@ -27,10 +26,8 @@ class FHIRClient:
     def get(self, resource_type, parameters=None, paging=True, get_all=False, max_cnt=sys.maxsize):
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of " \
                                                 f"{', '.join(resource_types)} "
-        request_string = f"{self._url}/{resource_type}"
-        if parameters is not None:
-            param_string = "&".join([f"{k}={str(v)}" for k, v in parameters.items()])
-            request_string = f"{request_string}?{param_string}"
+        url_string = f"{self._url}/{resource_type}"
+        request_string = join_url_with_params(url_string, parameters)
         print(f"Requesting: {request_string} with headers {self._headers}")
         response = make_request(request_string, headers=self._headers, proxies=self._proxies, auth=self._auth,
                                 cert=self._cert)
@@ -38,8 +35,9 @@ class FHIRClient:
         if not paging:
             return bundle
         else:
-            paging_result = PagingResult(bundle, max_cnt=max_cnt, headers=self._headers, authorization=self._auth,
-                                         proxies=self._proxies, cert=self._cert)
+            paging_result = PagingResult(starting_url=request_string, params=parameters, max_cnt=max_cnt,
+                                         headers=self._headers, authorization=self._auth, proxies=self._proxies,
+                                         cert=self._cert)
             if get_all:
                 bundles = list()
                 for result_page in paging_result:
@@ -51,57 +49,43 @@ class FHIRClient:
 
 class PagingResult:
 
-    def __init__(self, starting_url, max_cnt=sys.maxsize, headers=None, authorization=None, proxies=None, cert=None):
+    def __init__(self, starting_url, params=None, max_cnt=sys.maxsize, headers=None, authorization=None, proxies=None,
+                 cert=None):
+        self.__params = params
         self.__current_page = None
-        self.__total = None  # bundle.get('total', len(bundle.get('entry', [])))
-        self.__next_url = starting_url  # get_next_url(bundle)
+        self.total = get_total(starting_url, params=params, headers=headers, auth=authorization, proxies=proxies,
+                               cert=cert)
+        self.__next_url = join_url_with_params(starting_url, params)
         self.__max_cnt = max_cnt
         self.__current_cnt = 0
         self.__headers = headers
         self.__auth = authorization
         self.__proxies = proxies
         self.__cert = cert
-        self.__stop = False
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        # TODO: Implement better version of PagingResult which takes to initial request instead of the first bundle to
-        # TODO: avoid convoluted condition checking
+        if self.__next_url is None or self.__current_cnt >= self.__max_cnt:
+            raise StopIteration
         try:
-            self.__current_page = make_request(self.__next_url, headers=self.__headers, auth=self.__auth,
-                                               proxies=self.__proxies, cert=self.__cert)
+            response = make_request(self.__next_url, headers=self.__headers, auth=self.__auth, proxies=self.__proxies,
+                                    cert=self.__cert)
+            self.__current_page = response.json()
             self.__next_url = get_next_url(self.__current_page)
             self.__current_cnt += len(self.__current_page.get('entry', []))
-            if self.__next_url is not None and self.__current_cnt < self.__max_cnt:
+            return self.__current_page
         except HttpError as error:
-            raise StopIteration(f"Paging failed due to request failing") from error
+            raise StopIteration("Paging failed due to request failing") from error
         except KeyError as error:
-            raise StopIteration(f"Paging failed due to missing element in bundle") from error
-
-        if self.__stop:
-            raise StopIteration
-        self.__next_url = get_next_url(self.__current_page)
-        bundle = self.__current_page
-        self.__current_cnt += len(bundle.get('entry', []))
-        if self.__next_url is not None and self.__current_cnt < self.__max_cnt:
-            print(f"Requesting: {self.__next_url}")
-            response = requests.get(self.__next_url, headers=self.__headers, auth=self.__auth, verify=self.__cert,
-                                    proxies=self.__proxies)
-            if response.status_code != 200:
-                raise StopIteration(f"Paging failed with status code {response.status_code} and "
-                                    f"headers {response.headers}:\n{response.text}")
-            self.__current_page = json.loads(response.text)
-        else:
-            self.__stop = True
-        return bundle
+            raise StopIteration("Paging failed due to missing element in bundle") from error
+        except requests.exceptions.JSONDecodeError as error:
+            raise StopIteration("Paging failed due to failing to parse content of response body as JSON object") \
+                from error
 
     def is_empty(self):
-        if self.__total is None:
-            # Ensure some statement can be made about the whether the bundle is empty
-            self.__next__()
-        return self.__total == 0
+        return self.total == 0
 
 
 def get_next_url(bundle):
@@ -122,10 +106,30 @@ def make_request(url_string, headers, proxies, cert, auth, verify=True):
     response = requests.get(url=url_string, headers=headers, proxies=proxies,
                             cert=cert, auth=auth, verify=verify)
     if response.status_code != 200:
-        raise HttpError(response.status_code, f"Request failed with status code {response.status_code} and "
+        raise HttpError(response.status_code, f"Paging failed with status code {response.status_code} and "
                         f"headers {response.headers}:\n{response.text}")
     else:
         return response
+
+
+def get_total(starting_url, params, headers, proxies, cert, auth, verify=True):
+    summary_params = params.copy()
+    summary_params['_summary'] = 'count'
+    request_string = join_url_with_params(starting_url, summary_params)
+    response = make_request(request_string, headers=headers, proxies=proxies, cert=cert, auth=auth, verify=verify)
+    bundle = response.json()
+    total = bundle.get('total', None)
+    if total is None:
+        print("WARNING: Total element of summary bundle wasn't present! Assumed entry count will be 0!")
+        return 0
+    return total
+
+
+def join_url_with_params(url_string, params):
+    if params is None:
+        return url_string
+    param_string = '&'.join([f"{str(key)}={str(value)}" for key, value in params.items()])
+    return f"{url_string}?{param_string}"
 
 
 class HttpError(ConnectionError):

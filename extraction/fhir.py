@@ -28,14 +28,14 @@ class FHIRClient:
                                                 f"{', '.join(resource_types)} "
         url_string = f"{self._url}/{resource_type}"
         request_string = join_url_with_params(url_string, parameters)
-        print(f"Requesting: {request_string} with headers {self._headers}")
-        response = make_request(request_string, headers=self._headers, proxies=self._proxies, auth=self._auth,
-                                cert=self._cert)
-        bundle = json.loads(response.text)
+        print(f"Requesting: [GET] {request_string} with headers {self._headers}")
         if not paging:
+            response = make_request(request_string, headers=self._headers, proxies=self._proxies, auth=self._auth,
+                                    cert=self._cert)
+            bundle = json.loads(response.text)
             return bundle
         else:
-            paging_result = PagingResult(starting_url=request_string, params=parameters, max_cnt=max_cnt,
+            paging_result = PagingResult(starting_url=url_string, params=parameters, max_cnt=max_cnt,
                                          headers=self._headers, authorization=self._auth, proxies=self._proxies,
                                          cert=self._cert)
             if get_all:
@@ -113,8 +113,8 @@ def make_request(url_string, headers, proxies, cert, auth, verify=True):
 
 
 def get_total(starting_url, params, headers, proxies, cert, auth, verify=True):
-    summary_params = params.copy()
-    summary_params['_summary'] = 'count'
+    summary_params = {'_summary': 'count'}
+    summary_params.update(params)
     request_string = join_url_with_params(starting_url, summary_params)
     response = make_request(request_string, headers=headers, proxies=proxies, cert=cert, auth=auth, verify=verify)
     bundle = response.json()

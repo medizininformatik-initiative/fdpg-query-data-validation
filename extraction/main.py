@@ -199,7 +199,6 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
         summary_params = {'_summary': 'count'}
         summary_params.update(parameters)
         result = client.get(resource_type, parameters=summary_params, paging=False)
-        print(result['total'])
         num_found = min(result['total'], total)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
     except Exception as error:
@@ -215,6 +214,7 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
         parameters.pop('_profile', None)
         try:
             paging_result = client.get(resource_type, parameters, max_cnt=total)
+            num_found = min(paging_result.total, total)
         except Exception as error:
             msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
                   f"report "
@@ -229,7 +229,6 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
         print(f"Found {paging_result.total} for {resource_type}")
         issue_set = IssueSet()
         for idx, bundle in enumerate(paging_result):
-            print(f"Status: {idx} of {int(max(total / parameters['_count'], 1))} requests processed")
             try:
                 op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
                 for issue in op_outcome.get('issue', []):
@@ -239,6 +238,7 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
                       f"report "
                 print(f"{msg}:\n{traceback.format_exception(error)}")
                 error_issues.append(generate_issue('error', 'processing', msg))
+            print(f"Status: {idx + 1} of {max(int(num_found / parameters['_count']), 1)} requests processed")
         issues.extend(issue_set.get_issues())
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
     return general_issues, issues, error_issues, num_found

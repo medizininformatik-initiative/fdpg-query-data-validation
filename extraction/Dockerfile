@@ -3,7 +3,7 @@
 FROM python:3.10-alpine
 ENV FHIR_SERVER_URL: "http://localhost:8080/fhir"
 ENV TOTAL: 500
-ENV COUNT: 500
+ENV COUNT: 50
 ENV VALIDATION_URL: "http://localhost:8092/validate"
 ENV REPORT_LOCATION: "/app/report"
 ENV USERNAME: ""

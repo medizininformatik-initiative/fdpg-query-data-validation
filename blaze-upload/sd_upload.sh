@@ -11,9 +11,7 @@ if [[ -n "${HTTPS_PACKAGE_DOWNLOAD_PROXY}" ]]
 then
   https_proxy="--https-proxy ${HTTPS_PACKAGE_DOWNLOAD_PROXY} "
 fi
-proxy_settings="${http_proxy h}"
-echo "python -m fhir_populator --endpoint ${BLAZE_SERVER_URL} --get-dependencies --non-interactive --only-put ${http_proxy}${https_proxy}--package ${PACKAGES}"
-python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only-put "${http_proxy}""${https_proxy}"--package ${PACKAGES}
+python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only-put ${http_proxy}${https_proxy}--package ${PACKAGES}
 echo "Uploading own StructureDefinition instances to Blaze@${BALZE_SERVER_URL}"
 for file in ./fhir_profiles/**/*.json
 do

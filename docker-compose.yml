@@ -92,6 +92,7 @@ services:
       FHIR_HTTP_PROXY: "${FHIR_HTTP_PROXY}"
       FHIR_HTTPS_PROXY: "${FHIR_HTTPS_PROXY}"
       CA_FILE_NAME: "${CA_FILE_NAME}"
+      VERIFY_SSL_CERT: "${VERIFY_SSL_CERT}"
     volumes:
       - ${REPORT_LOCATION:-./report}:/app/report
       - ${VALIDATION_MAPPING_DIRECTORY:-./maps}:/app/maps

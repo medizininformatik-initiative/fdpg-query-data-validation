@@ -9,7 +9,10 @@ RUN apk add jq
 RUN apk add --no-cache bash
 
 # Install FHIR Populator
-RUN python -m pip install fhir-populator
+RUN pip install virtualenv
+RUN python -m venv .venv
+RUN source .venv/bin/activate
+RUN python -m pip install --upgrade fhir-populator
 
 COPY . /app
 WORKDIR /app

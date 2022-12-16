@@ -33,6 +33,8 @@ def configure_argparser():
                                  "pull each request regarding page size")
     arg_parser.add_argument('-v', '--validation-endpoint', action='store', default='http://localhost:8082/validate',
                             help='URL of the validation endpoint used for validating the data')
+    arg_parser.add_argument('--verify', action='store', type=str, choices=['true', 'false'], default='true',
+                            help='Indicates whether SSL certificates will be validated')
     return arg_parser
 
 
@@ -317,7 +319,11 @@ if __name__ == '__main__':
     total_sample_size = args.total
     resource_count_per_page = args.count
     validation_endpoint = args.validation_endpoint
-    fhir_client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate)
+    if args.verify == 'false':
+        verify_ssl_cert = False
+    else:
+        verify_ssl_cert = True
+    fhir_client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate, verify=verify_ssl_cert)
     raw_report = dict()
     try:
         raw_report["distribution"] = analyse_distribution(fhir_client)

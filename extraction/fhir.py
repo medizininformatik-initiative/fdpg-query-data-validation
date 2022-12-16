@@ -10,7 +10,7 @@ resource_types = ["Condition", "Observation", "Procedure", "Medication", "Medica
 
 class FHIRClient:
 
-    def __init__(self, url, user=None, pw=None, token=None, proxies=None, cert=None):
+    def __init__(self, url, user=None, pw=None, token=None, proxies=None, cert=None, verify=True):
         self._url = url
         self._headers = {'Content-Type': 'application/json'}
         self._auth = None
@@ -22,6 +22,7 @@ class FHIRClient:
         self._cert = None
         if cert is not None and len(cert) > 0:
             self._cert = cert
+        self.__verify_ssl_certificate = verify
 
     def get(self, resource_type, parameters=None, paging=True, get_all=False, max_cnt=sys.maxsize):
         assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of " \
@@ -31,13 +32,13 @@ class FHIRClient:
         print(f"Requesting: [GET] {request_string} with headers {self._headers}")
         if not paging:
             response = make_request(request_string, headers=self._headers, proxies=self._proxies, auth=self._auth,
-                                    cert=self._cert)
+                                    cert=self._cert, verify=self.__verify_ssl_certificate)
             bundle = json.loads(response.text)
             return bundle
         else:
             paging_result = PagingResult(starting_url=url_string, params=parameters, max_cnt=max_cnt,
                                          headers=self._headers, authorization=self._auth, proxies=self._proxies,
-                                         cert=self._cert)
+                                         cert=self._cert, verify=self.__verify_ssl_certificate)
             if get_all:
                 bundles = list()
                 for result_page in paging_result:
@@ -50,11 +51,11 @@ class FHIRClient:
 class PagingResult:
 
     def __init__(self, starting_url, params=None, max_cnt=sys.maxsize, headers=None, authorization=None, proxies=None,
-                 cert=None):
+                 cert=None, verify=True):
         self.__params = params
         self.__current_page = None
         self.total = get_total(starting_url, params=params, headers=headers, auth=authorization, proxies=proxies,
-                               cert=cert)
+                               cert=cert, verify=verify)
         self.__next_url = join_url_with_params(starting_url, params)
         self.__max_cnt = max_cnt
         self.__current_cnt = 0
@@ -62,6 +63,7 @@ class PagingResult:
         self.__auth = authorization
         self.__proxies = proxies
         self.__cert = cert
+        self.__verify_ssl_cert=verify
 
     def __iter__(self):
         return self
@@ -71,7 +73,7 @@ class PagingResult:
             raise StopIteration
         try:
             response = make_request(self.__next_url, headers=self.__headers, auth=self.__auth, proxies=self.__proxies,
-                                    cert=self.__cert)
+                                    cert=self.__cert, verify=self.__verify_ssl_cert)
             self.__current_page = response.json()
             self.__next_url = get_next_url(self.__current_page)
             self.__current_cnt += len(self.__current_page.get('entry', []))

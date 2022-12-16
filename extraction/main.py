@@ -5,9 +5,8 @@ import traceback
 import requests
 import json
 
-from IssueMap import IssueMap
 from IssueSet import IssueSet
-from fhir import FHIRClient
+from fhir import FHIRClient, HttpError
 
 cert_dir = 'certificates'
 distribution_tests_file = os.path.join('distribution_tests', 'distribution_tests.json')
@@ -53,8 +52,8 @@ def simple_test(data, v_url, content_type):
     try:
         response = requests.post(url=v_url, data=data, headers={"Content-Type": content_type})
         return json.loads(response.text)
-    except Exception as error:
-        raise Exception("Simple test failed", error)
+    except Exception as simple_test_error:
+        raise Exception("Simple test failed", simple_test_error)
 
 
 def observation_test(data, v_url, content_type):
@@ -148,31 +147,11 @@ def run_test(client, total, count, v_url):
                 parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
                 get_and_append_issues(client, resource_type, parameters, total, v_url, key=obs_code, report=obs_reports,
                                       error_issues=error_issues, general_issues=general_issues)
-                '''
-                general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total,
-                                                                            v_url, "application/json")
-                if len(mapped_issues) > 1 or (len(mapped_issues) == 1 and mapped_issues[0].get(
-                        'diagnostics') != 'No issues detected during validation'):
-                    obs_reports[obs_code] = {'count': num_found,
-                                             'issues': mapped_issues}
-                error_issues['issue'].extend(errors)
-                general_issues['issue'].extend(general)
-                '''
             report[resource_type] = obs_reports
         else:
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
             get_and_append_issues(client, resource_type, parameters, total, v_url, key=resource_type, report=report,
                                   error_issues=error_issues, general_issues=general_issues)
-            '''
-            general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total, v_url,
-                                                                        "application/json")
-            if len(mapped_issues) > 1 or (len(mapped_issues) == 1 and mapped_issues[0].get(
-                    'diagnostics') != 'No issues detected during validation'):
-                report[resource_type] = {'count': num_found,
-                                         'issues': mapped_issues}
-            error_issues['issue'].extend(errors)
-            general_issues['issue'].extend(general)
-            '''
     report['general'] = general_issues
     report['error'] = error_issues
     print("All done")
@@ -191,37 +170,21 @@ def get_and_append_issues(client, resource_type, parameters, total, v_url, key, 
 
 
 # Returns issues grouped by the instance ID
-def run_total_tests(client, resource_type, parameters, total, v_url, content_type):
+def run_total_tests(client, resource_type, parameters, total, validation_url, content_type):
     general_issues = list()
     issues = list()
     error_issues = list()
-    paging_result = None
-    num_found = 0
-    try:
-        summary_params = {'_summary': 'count'}
-        summary_params.update(parameters)
-        result = client.get(resource_type, parameters=summary_params, paging=False)
-        num_found = min(result['total'], total)
-        paging_result = client.get(resource_type, parameters, max_cnt=total)
-    except Exception as error:
-        msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
-              f"report "
-        print(f"{msg}:\n{traceback.format_exception(error)}")
-        error_issues.append(generate_issue('error', 'processing', msg))
+    paging_result, num_of_instances_to_process, request_error = try_request_with_profile(resource_type, parameters,
+                                                                                         total, client)
+    if request_error is not None:
+        error_issues.append(request_error)
     if paging_result is None or paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         print(f"Excluding profile constraint for {resource_type}?{param_string} since no data matches it")
         general_issues.append(
             generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
-        parameters.pop('_profile', None)
-        try:
-            paging_result = client.get(resource_type, parameters, max_cnt=total)
-            num_found = min(paging_result.total, total)
-        except Exception as error:
-            msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
-                  f"report "
-            print(f"{msg}:\n{traceback.format_exception(error)}")
-            error_issues.append(generate_issue('error', 'processing', msg))
+        paging_result, num_of_instances_to_process, request_error = try_request_with_profile(resource_type, parameters,
+                                                                                             total, client)
     if paging_result is None or paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         msg = f"No matches found for {resource_type}?{param_string}"
@@ -229,52 +192,62 @@ def run_total_tests(client, resource_type, parameters, total, v_url, content_typ
         general_issues.append(generate_issue("warning", "processing", msg))
     else:
         print(f"Found {paging_result.total} for {resource_type}")
-        issue_set = IssueSet()
-        for idx, bundle in enumerate(paging_result):
-            try:
-                op_outcome = simple_test(json.dumps(bundle), v_url, content_type)
-                for issue in op_outcome.get('issue', []):
-                    issue_set.add(issue)
-            except Exception as error:
-                msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
-                      f"report "
-                print(f"{msg}:\n{traceback.format_exception(error)}")
-                error_issues.append(generate_issue('error', 'processing', msg))
-            print(f"Status: {idx + 1} of {max(int(num_found / parameters['_count']), 1)} requests processed")
-        issues.extend(issue_set.get_issues())
+        validation_issues, validation_error_issues = validate_data_in_paging_result(paging_result, validation_url,
+                                                                                    parameters, content_type)
+        issues.extend(validation_issues)
+        error_issues.extend(validation_error_issues)
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
-    return general_issues, issues, error_issues, num_found
+    return general_issues, issues, error_issues, num_of_instances_to_process
 
 
-# TODO
-def refine_report(report):
-    aggregate_map = {'distribution': report['distribution'],
-                     'validation': dict()}
-    for resource_type, resource_report in report['validation'].items():
-        if resource_type == 'Observation':
-            obs_map = dict()
-            aggregate_map[resource_type] = obs_map
-            for obs_code, obs_report in resource_report.items():
-                issue_map = IssueMap()
-                obs_map[obs_code] = issue_map
-                for op_outcome in obs_report:
-                    process_op_outcome(op_outcome, issue_map)
-        else:
-            issue_map = IssueMap()
-            aggregate_map[resource_type] = issue_map
-            for op_outcome in resource_report:
-                process_op_outcome(op_outcome, issue_map)
-    return aggregate_map
+def try_request_with_profile(resource_type, parameters, total, client):
+    paging_result = None
+    num_of_instances_to_process = 0
+    request_error = None
+    try:
+        num_of_instances_found = client.count_resources(resource_type=resource_type, params=parameters)
+        num_of_instances_to_process = min(num_of_instances_found, total)
+        paging_result = client.get(resource_type, parameters, max_cnt=total)
+    except HttpError as http_error:
+        msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in report "
+        print(f"{msg}:\n{traceback.format_exception(http_error)}")
+        request_error = generate_issue('error', 'processing', msg)
+    return paging_result, num_of_instances_to_process, request_error
 
 
-# TODO
-def process_aggregate():
-    pass
+def try_request_without_profile(resource_type, parameters, total, client):
+    paging_result = None
+    num_of_instances_to_process = 0
+    request_error = None
+    parameters.pop('_profile', None)
+    try:
+        paging_result = client.get(resource_type, parameters, max_cnt=total)
+        num_of_instances_to_process = min(paging_result.total, total)
+    except HttpError as http_error:
+        msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
+              f"report "
+        print(f"{msg}:\n{traceback.format_exception(http_error)}")
+        request_error = generate_issue('error', 'processing', msg)
+    return paging_result, num_of_instances_to_process, request_error
 
 
-def process_op_outcome(op_outcome, issue_map):
-    for issue in op_outcome['issue']:
-        issue_map.put_issue(issue)
+def validate_data_in_paging_result(paging_result, validation_url, parameters, content_type, ):
+    issue_set = IssueSet()
+    error_issues = []
+    for idx, bundle in enumerate(paging_result):
+        try:
+            op_outcome = simple_test(json.dumps(bundle), validation_url, content_type)
+            for issue in op_outcome.get('issue', []):
+                issue_set.add(issue)
+        except Exception as test_error:
+            msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
+                  f"report "
+            print(f"{msg}:\n{traceback.format_exception(test_error)}")
+            error_issues.append(generate_issue('error', 'processing', msg))
+        print(
+            f"Status: {idx + 1} of {max(int(paging_result.total / parameters['_count']), 1)} requests processed")
+    issues = issue_set.get_issues()
+    return issues, error_issues
 
 
 def analyse_distribution(client):
@@ -294,14 +267,24 @@ def analyse_distribution(client):
                     search_path_param = search_path.replace('?', value).split('=')
                     params = {search_path_param[0]: search_path_param[1],
                               '_summary': 'count'}
-                    response = client.get(resource_type, parameters=params, paging=False)
-                    search_path_results[value] = response.get('total')
-                except Exception as error:
+                    search_path_results[value] = client.count_resources(resource_type, params=params)
+                except Exception as analysis_error:
                     print(f"Failed distribution analysis for {resource_type}::{search_path}::{value}: "
                           f"Results will be excluded")
-                    traceback.print_tb(error.__traceback__)
+                    traceback.print_tb(analysis_error.__traceback__)
             results[resource_type][search_path] = search_path_results
     return results
+
+
+def write_raw_report(raw_report):
+    try:
+        raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
+        with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
+            raw_report_file.write(json.dumps(raw_report, indent=4))
+            print(f"Generated reports: {raw_report_name}")
+    except Exception as writing_error:
+        print("Could not write report")
+        print(traceback.format_exception(writing_error))
 
 
 if __name__ == '__main__':
@@ -327,20 +310,13 @@ if __name__ == '__main__':
     raw_report = dict()
     try:
         raw_report["distribution"] = analyse_distribution(fhir_client)
-    except Exception as e:
+    except Exception as error:
         print(f"Distribution analysis failed and will not be included:\n "
-              f"{traceback.format_exception(None, e, e.__traceback__)}", flush=True)
+              f"{traceback.format_exception(error)}", flush=True)
     try:
         raw_report["validation"] = run_test(fhir_client, total_sample_size, resource_count_per_page,
                                             validation_endpoint)
-    except (ConnectionError, requests.Timeout, requests.HTTPError) as e:
+    except (ConnectionError, requests.Timeout, requests.HTTPError) as error:
         print("Report generation stopped due to missing connection to FHIR server", flush=True)
-        print(str(e), flush=True)
-    try:
-        raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
-        with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
-            raw_report_file.write(json.dumps(raw_report, indent=4))
-            print(f"Generated reports: {raw_report_name}")
-    except Exception as e:
-        print("Could not write report")
-        print(str(e))
+        print(traceback.format_exception(error), flush=True)
+    write_raw_report(raw_report)

@@ -1,4 +1,3 @@
-
 import sys
 import requests
 from requests import auth
@@ -61,8 +60,8 @@ class PagingResult:
         self.__current_page = None
         self.total = get_total(starting_url, params=params, headers=headers, authentication=authorization,
                                proxies=proxies, cert=cert, verify=verify)
-        self.__next_url = join_url_with_params(starting_url, params)
-        self.__max_cnt = max_cnt
+        self.__starting_url = starting_url
+        self.max_cnt = max_cnt
         self.__current_cnt = 0
         self.__headers = headers
         self.__auth = authorization
@@ -71,10 +70,12 @@ class PagingResult:
         self.__verify_ssl_cert = verify
 
     def __iter__(self):
+        # Leave starting url unchanged to allow rerunning of the iterator
+        self.__next_url = join_url_with_params(self.__starting_url, self.__params)
         return self
 
     def __next__(self):
-        if self.__next_url is None or self.__current_cnt >= self.__max_cnt:
+        if self.__next_url is None or self.__current_cnt >= self.max_cnt:
             raise StopIteration
         try:
             response = make_request(self.__next_url, headers=self.__headers, authentication=self.__auth,

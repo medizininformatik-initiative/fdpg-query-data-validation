@@ -1,12 +1,12 @@
 import argparse
 import os
-import time
 import traceback
 import requests
 import json
 
 from IssueSet import IssueSet
 from fhir import FHIRClient, HttpError
+from datetime import datetime
 
 cert_dir = 'certificates'
 distribution_tests_file = os.path.join('distribution_tests', 'distribution_tests.json')
@@ -183,8 +183,9 @@ def run_total_tests(client, resource_type, parameters, total, validation_url, co
         print(f"Excluding profile constraint for {resource_type}?{param_string} since no data matches it")
         general_issues.append(
             generate_issue("warning", "processing", f"No data matching {resource_type}?{param_string}"))
-        paging_result, num_of_instances_to_process, request_error = try_request_with_profile(resource_type, parameters,
-                                                                                             total, client)
+        paging_result, num_of_instances_to_process, request_error = try_request_without_profile(resource_type,
+                                                                                                parameters, total,
+                                                                                                client)
     if paging_result is None or paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         msg = f"No matches found for {resource_type}?{param_string}"
@@ -231,7 +232,7 @@ def try_request_without_profile(resource_type, parameters, total, client):
     return paging_result, num_of_instances_to_process, request_error
 
 
-def validate_data_in_paging_result(paging_result, validation_url, parameters, content_type, ):
+def validate_data_in_paging_result(paging_result, validation_url, parameters, content_type):
     issue_set = IssueSet()
     error_issues = []
     for idx, bundle in enumerate(paging_result):
@@ -245,7 +246,7 @@ def validate_data_in_paging_result(paging_result, validation_url, parameters, co
             print(f"{msg}:\n{traceback.format_exception(test_error)}")
             error_issues.append(generate_issue('error', 'processing', msg))
         print(
-            f"Status: {idx + 1} of {max(int(paging_result.total / parameters['_count']), 1)} requests processed")
+            f"Status: {idx + 1} of {max(int(paging_result.max_cnt / parameters['_count']), 1)} requests processed")
     issues = issue_set.get_issues()
     return issues, error_issues
 
@@ -276,11 +277,12 @@ def analyse_distribution(client):
     return results
 
 
-def write_raw_report(raw_report):
+def write_raw_report(report):
     try:
-        raw_report_name = f'raw_report_{round(time.time() * 1000)}.json'
+        formatted_date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        raw_report_name = f'raw_report_{formatted_date}.json'
         with open(os.path.join('report', raw_report_name), mode='w+') as raw_report_file:
-            raw_report_file.write(json.dumps(raw_report, indent=4))
+            raw_report_file.write(json.dumps(report, indent=4))
             print(f"Generated reports: {raw_report_name}")
     except Exception as writing_error:
         print("Could not write report")

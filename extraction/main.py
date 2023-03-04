@@ -1,18 +1,22 @@
 import argparse
-import os
-import traceback
-import requests
 import json
+import multiprocessing
+import os
+import sys
+import traceback
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from datetime import datetime
+
+import requests
 
 from IssueSet import IssueSet
 from fhir import FHIRClient, HttpError
-from datetime import datetime
 
 cert_dir = 'certificates'
 distribution_tests_file = os.path.join('distribution_tests', 'distribution_tests.json')
 
 
-def configure_argparser():
+def configure_arg_parser():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('url', action='store', help="URL of the FHIR server from which to pull the data")
     arg_parser.add_argument('-u', '--user', help='basic auth user fhir server', nargs="?", default="")
@@ -24,10 +28,10 @@ def configure_argparser():
                             nargs="?",
                             default=None)
     arg_parser.add_argument('--cert', help='path to certificate file used to verify requests', nargs="?", default=None)
-    arg_parser.add_argument('-t', '--total', action='store', default=500, type=int,
+    arg_parser.add_argument('-t', '--total', action='store', default=5, type=int,
                             help="Total amount of resource instances"
                                  " to pull for testing")
-    arg_parser.add_argument('-c', '--count', action='store', default=100, type=int,
+    arg_parser.add_argument('-c', '--count', action='store', default=5, type=int,
                             help="Amount of resource instances to "
                                  "pull each request regarding page size")
     arg_parser.add_argument('-v', '--validation-endpoint', action='store', default='http://localhost:8082/validate',
@@ -37,34 +41,27 @@ def configure_argparser():
     return arg_parser
 
 
-def make_bundle(bundles):
-    collective_bundle = {"resourceType": "Bundle",
-                         "type": "transaction",
-                         "entry": list()}
-    for bundle in bundles:
-        entry = bundle.get('entry')
-        if isinstance(entry, list):
-            collective_bundle['entry'].extend(bundle.get('entry'))
-    return collective_bundle
-
-
 def simple_test(data, v_url, content_type):
     try:
         response = requests.post(url=v_url, data=data, headers={"Content-Type": content_type})
-        return json.loads(response.text)
-    except Exception as simple_test_error:
-        raise Exception("Simple test failed", simple_test_error)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as request_exception:
+        raise Exception("Error executing simple test during POST request: {}".format(request_exception))
 
 
 def observation_test(data, v_url, content_type):
-    results = dict()
-    for k, v in data.items():
-        try:
-            response = simple_test(v, v_url, content_type)
-        except Exception as exception:
-            response = str(exception)
-        results[k] = response
-    return results
+    with multiprocessing.Manager() as manager:
+        results = manager.dict()
+        with ProcessPoolExecutor() as executor:
+            future_to_key = {executor.submit(simple_test, v_url, v, content_type): k for k, v in data.items()}
+            for future in as_completed(future_to_key):
+                key = future_to_key[future]
+                try:
+                    results[key] = future.result()
+                except Exception as exception:
+                    results[key] = str(exception)
+        return dict(results)
 
 
 def map_bundle_id_to_entry_idx(bundle):
@@ -125,7 +122,7 @@ type_profiles = {
     "MedicationStatement": "https://www.medizininformatik-initiative.de/fhir/core/modul-medikation"
                            "/StructureDefinition/MedicationStatement",
     "Procedure": "https://www.medizininformatik-initiative.de/fhir/core/modul-prozedur/StructureDefinition/Procedure",
-    "Specimen": "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/SpecimenCore",
+    "Specimen": "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen",
     "Consent": "https://www.medizininformatik-initiative.de/fhir/modul-consent/StructureDefinition/mii-pr-consent"
                "-einwilligung"}
 
@@ -136,17 +133,14 @@ def run_test(client, total, count, v_url):
     error_issues = {"issue": []}
     general_issues = {"issue": []}
     # aggregated_report = dict()
-    for resource_type, test in test_type.items():
+    for resource_type in test_type:
         print(f"Running tests for {resource_type}")
         # Fetch data from FHIR server
         if resource_type == 'Observation':
-            val_mapping = json.load(open('./maps/validation_mapping.json'))
-            obs_reports = dict()
-            for obs_code, _ in val_mapping['Observation'].items():
-                search_string = f"http://loinc.org|{obs_code}"
-                parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
-                get_and_append_issues(client, resource_type, parameters, total, v_url, key=obs_code, report=obs_reports,
-                                      error_issues=error_issues, general_issues=general_issues)
+            obs_reports, obs_error_issue, obs_general_issue = run_observation_test(client, count, resource_type, total,
+                                                                                   v_url)
+            error_issues['issue'].extend(obs_error_issue)
+            general_issues['issue'].extend(obs_general_issue)
             report[resource_type] = obs_reports
         else:
             parameters = {'_count': count, '_profile': type_profiles[resource_type]}
@@ -156,6 +150,42 @@ def run_test(client, total, count, v_url):
     report['error'] = error_issues
     print("All done")
     return report
+
+
+# def run_observation_test(client, count, error_issues, general_issues, resource_type, total, v_url):
+#     val_mapping = json.load(open('./maps/validation_mapping.json'))
+#     obs_reports = dict()
+#     for obs_code in val_mapping['Observation']:
+#         search_string = f"http://loinc.org|{obs_code}"
+#         parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
+#         get_and_append_issues(client, resource_type, parameters, total, v_url, key=obs_code, report=obs_reports,
+#                               error_issues=error_issues, general_issues=general_issues)
+#     return obs_reports
+
+
+def process_observation_issues(client, resource_type, count, total, v_url, key, error_issues, general_issues, report):
+    search_string = f"http://loinc.org|{key}"
+    parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
+    general, mapped_issues, errors, num_found = run_total_tests(client, resource_type, parameters, total, v_url,
+                                                                "application/json")
+    error_issues.extend(errors)
+    general_issues.extend(general)
+    if len(mapped_issues) > 1 or (len(mapped_issues) == 1 and mapped_issues[0].get(
+            'diagnostics') != 'No issues detected during validation'):
+        report[key] = {'count': num_found, 'issues': mapped_issues}
+
+
+def run_observation_test(client, count, resource_type, total, v_url) -> dict:
+    val_mapping = json.load(open('./maps/validation_mapping.json'))
+    with multiprocessing.Manager() as manager:
+        obs_reports = manager.dict()
+        error_issues = manager.list()
+        general_issues = manager.list()
+        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+            tasks = [(client, resource_type, count, total, v_url, obs_code, error_issues, general_issues, obs_reports)
+                     for obs_code in val_mapping['Observation']]
+            pool.starmap(process_observation_issues, tasks)
+        return dict(obs_reports), list(error_issues), list(general_issues)
 
 
 def get_and_append_issues(client, resource_type, parameters, total, v_url, key, report, error_issues, general_issues):
@@ -210,8 +240,9 @@ def try_request_with_profile(resource_type, parameters, total, client):
         num_of_instances_to_process = min(num_of_instances_found, total)
         paging_result = client.get(resource_type, parameters, max_cnt=total)
     except HttpError as http_error:
-        msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in report "
-        print(f"{msg}:\n{traceback.format_exception(http_error)}")
+        msg = f"Failed to retrieve resources of type {resource_type} with parameters {parameters}: {http_error}"
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"{msg}:\n{traceback.format_exception(exc_type, exc_value, exc_traceback)}")
         request_error = generate_issue('error', 'processing', msg)
     return paging_result, num_of_instances_to_process, request_error
 
@@ -225,9 +256,9 @@ def try_request_without_profile(resource_type, parameters, total, client):
         paging_result = client.get(resource_type, parameters, max_cnt=total)
         num_of_instances_to_process = min(paging_result.total, total)
     except HttpError as http_error:
-        msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
-              f"report "
-        print(f"{msg}:\n{traceback.format_exception(http_error)}")
+        msg = f"Failed to retrieve resources of type {resource_type} with parameters {parameters}: {http_error}"
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        print(f"{msg}:\n{traceback.format_exception(exc_type, exc_value, exc_traceback)}")
         request_error = generate_issue('error', 'processing', msg)
     return paging_result, num_of_instances_to_process, request_error
 
@@ -242,8 +273,9 @@ def validate_data_in_paging_result(paging_result, validation_url, parameters, co
                 issue_set.add(issue)
         except Exception as test_error:
             msg = f"Failed to run tests for Observation with parameters {parameters} and excluded result in " \
-                  f"report "
-            print(f"{msg}:\n{traceback.format_exception(test_error)}")
+                  f"report test_error: {test_error}"
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            print(f"{msg}:\n{traceback.format_exception(exc_type, exc_value, exc_traceback)}")
             error_issues.append(generate_issue('error', 'processing', msg))
         print(
             f"Status: {idx + 1} of {max(int(paging_result.max_cnt / parameters['_count']), 1)} requests processed")
@@ -285,12 +317,11 @@ def write_raw_report(report):
             raw_report_file.write(json.dumps(report, indent=4))
             print(f"Generated reports: {raw_report_name}")
     except Exception as writing_error:
-        print("Could not write report")
-        print(traceback.format_exception(writing_error))
+        print(f"Could not write report: {writing_error}")
 
 
 if __name__ == '__main__':
-    parser = configure_argparser()
+    parser = configure_arg_parser()
     args = parser.parse_args()
     url = args.url
     user = args.user
@@ -304,21 +335,17 @@ if __name__ == '__main__':
     total_sample_size = args.total
     resource_count_per_page = args.count
     validation_endpoint = args.validation_endpoint
-    if args.verify == 'false':
-        verify_ssl_cert = False
-    else:
-        verify_ssl_cert = True
+    verify_ssl_cert = args.verify == 'true' or args.verify == 'True'
     fhir_client = FHIRClient(url, user, pw, fhir_token, fhir_proxy, certificate, verify=verify_ssl_cert)
-    raw_report = dict()
+    raw_report = {}
     try:
         raw_report["distribution"] = analyse_distribution(fhir_client)
     except Exception as error:
-        print(f"Distribution analysis failed and will not be included:\n "
-              f"{traceback.format_exception(error)}", flush=True)
+        error_msg = f"Distribution analysis failed and will not be included: {error}"
+        print(f"{error_msg}")
     try:
         raw_report["validation"] = run_test(fhir_client, total_sample_size, resource_count_per_page,
                                             validation_endpoint)
     except (ConnectionError, requests.Timeout, requests.HTTPError) as error:
-        print("Report generation stopped due to missing connection to FHIR server", flush=True)
-        print(traceback.format_exception(error), flush=True)
+        print(f"Report generation stopped due to missing connection to FHIR server: {error}")
     write_raw_report(raw_report)

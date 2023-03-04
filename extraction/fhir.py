@@ -110,7 +110,6 @@ def get_next_url(bundle):
 
 
 def make_request(url_string, headers, proxies, cert, authentication, verify=True):
-    print(f"Requesting: {url_string}")
     response = requests.get(url=url_string, headers=headers, proxies=proxies,
                             cert=cert, auth=authentication, verify=verify)
     if response.status_code != 200:

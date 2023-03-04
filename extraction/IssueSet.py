@@ -37,4 +37,4 @@ class IssueSet:
 # codings in a CodeableConcept element. These values are not relevant in the context of this analysis as we only care
 # about the elements in which issues occur not their absolutely specific locations.
 def get_generic_fhir_path(fhir_path):
-    return re.sub(r'\[.*\]', '[*]', fhir_path)
+    return re.sub(r'\[.*]', '[*]', fhir_path)

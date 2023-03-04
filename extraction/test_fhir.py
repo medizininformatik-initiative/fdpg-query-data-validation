@@ -76,7 +76,8 @@ def test_get():
     print("Testing get method with paging=True, get_all=False, max_cnt=30")
     client = FHIRClient(url=url)
     max_cnt = 30
-    paging_result = client.get(resource_type='StructureDefinition', parameters=params, paging=True, get_all=False, max_cnt=max_cnt)
+    paging_result = client.get(resource_type='StructureDefinition', parameters=params, paging=True, get_all=False,
+                               max_cnt=max_cnt)
     assert isinstance(paging_result, PagingResult), f"Return is not of type PagingResult" \
                                                     f" but is instead {type(paging_result)}"
     if expected_total < max_cnt:

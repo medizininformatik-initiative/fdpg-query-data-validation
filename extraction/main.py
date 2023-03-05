@@ -152,17 +152,6 @@ def run_test(client, total, count, v_url):
     return report
 
 
-# def run_observation_test(client, count, error_issues, general_issues, resource_type, total, v_url):
-#     val_mapping = json.load(open('./maps/validation_mapping.json'))
-#     obs_reports = dict()
-#     for obs_code in val_mapping['Observation']:
-#         search_string = f"http://loinc.org|{obs_code}"
-#         parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}
-#         get_and_append_issues(client, resource_type, parameters, total, v_url, key=obs_code, report=obs_reports,
-#                               error_issues=error_issues, general_issues=general_issues)
-#     return obs_reports
-
-
 def process_observation_issues(client, resource_type, count, total, v_url, key, error_issues, general_issues, report):
     search_string = f"http://loinc.org|{key}"
     parameters = {'code': search_string, '_profile': type_profiles['Observation'], '_count': count}

@@ -19,5 +19,11 @@
       "http://fhir.de/CodeSystem/bfarm/atc",
       "http://www.whocc.no/atc"
     ]
-  }
+  },
+  "Patient": {},
+  "Consent":  {},
+  "ResearchStudy": {},
+  "ResearchSubject": {},
+  "Organization": {},
+  "Location": {}
 }

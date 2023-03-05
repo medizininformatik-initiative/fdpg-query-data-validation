@@ -24,8 +24,6 @@ class FHIRClient:
         self.__verify_ssl_certificate = verify
 
     def get(self, resource_type, parameters=None, paging=True, get_all=False, max_cnt=sys.maxsize):
-        assert resource_type in resource_types, f"The provided resource type '{resource_type}' has to be one of " \
-                                                f"{', '.join(resource_types)} "
         url_string = f"{self._url}/{resource_type}"
         request_string = join_url_with_params(url_string, parameters)
         print(f"Requesting: [GET] {request_string} with headers {self._headers}")

@@ -14,6 +14,7 @@ from fhir import FHIRClient, HttpError
 
 cert_dir = 'certificates'
 distribution_tests_file = os.path.join('distribution_tests', 'distribution_tests.json')
+fhir_server_url = ""
 
 
 def configure_arg_parser():
@@ -64,13 +65,13 @@ def observation_test(data, v_url, content_type):
         return dict(results)
 
 
-def map_bundle_id_to_entry_idx(bundle):
-    return [entry['resource']['id'] for entry in bundle.get('entry', [])]
+def get_resource_urls(bundle):
+    return [f"{fhir_server_url}/{entry['resource']['resourceType']}/{entry['resource']['id']}" for entry in
+            bundle.get('entry', [])]
 
 
-def map_issues_to_entry(bundle, op_outcome):
-    id_index = map_bundle_id_to_entry_idx(bundle)
-    id_issue_map = dict()
+def add_resource_url_to_issue(bundle, op_outcome):
+    resource_urls = get_resource_urls(bundle)
     for issue in op_outcome.get('issue', []):
         if 'location' in issue:
             fhir_path = issue.get('location', [])[0]
@@ -78,18 +79,8 @@ def map_issues_to_entry(bundle, op_outcome):
             # list is assumed to be contained in the second component of the FHIR path expression Form:
             # Bundle.entry[x]... where x is some number
             entry_idx = int(fhir_path.split('.')[1][6:-1])
-            resource_id = id_index[entry_idx]
-            issue_entry = {'issue': issue, 'element': get_issue_element(bundle, fhir_path)}
-            if resource_id in id_issue_map:
-                id_issue_map[resource_id].append(issue_entry)
-            else:
-                id_issue_map[resource_id] = [issue_entry]
-        else:
-            if 'not-assignable' in id_issue_map:
-                id_issue_map['not-assignable'].append(issue)
-            else:
-                id_issue_map['not-assignable'] = [issue]
-    return id_issue_map
+            resource_url = resource_urls[entry_idx]
+            issue.setdefault("url", []).append(resource_url)
 
 
 def get_issue_element(_bundle, _fhir_path_expr):
@@ -190,14 +181,14 @@ def get_and_append_issues(client, resource_type, parameters, total, v_url, key, 
 
 # Returns issues grouped by the instance ID
 def run_total_tests(client, resource_type, parameters, total, validation_url, content_type):
-    general_issues = list()
-    issues = list()
-    error_issues = list()
+    general_issues = []
+    issues = []
+    error_issues = []
     paging_result, num_of_instances_to_process, request_error = try_request_with_profile(resource_type, parameters,
                                                                                          total, client)
-    if request_error is not None:
+    if request_error:
         error_issues.append(request_error)
-    if paging_result is None or paging_result.is_empty():
+    if not paging_result or paging_result.is_empty():
         param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
         print(f"Excluding profile constraint for {resource_type}?{param_string} since no data matches it")
         general_issues.append(
@@ -205,17 +196,20 @@ def run_total_tests(client, resource_type, parameters, total, validation_url, co
         paging_result, num_of_instances_to_process, request_error = try_request_without_profile(resource_type,
                                                                                                 parameters, total,
                                                                                                 client)
-    if paging_result is None or paging_result.is_empty():
-        param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
-        msg = f"No matches found for {resource_type}?{param_string}"
-        print(msg)
-        general_issues.append(generate_issue("warning", "processing", msg))
-    else:
-        print(f"Found {paging_result.total} for {resource_type}")
-        validation_issues, validation_error_issues = validate_data_in_paging_result(paging_result, validation_url,
-                                                                                    parameters, content_type)
-        issues.extend(validation_issues)
-        error_issues.extend(validation_error_issues)
+        if request_error:
+            error_issues.append(request_error)
+        if not paging_result or paging_result.is_empty():
+            param_string = '&'.join([f'{param}={value}' for param, value in parameters.items()])
+            msg = f"No matches found for {resource_type}?{param_string}"
+            print(msg)
+            general_issues.append(generate_issue("warning", "processing", msg))
+            return general_issues, issues, error_issues, num_of_instances_to_process
+
+    print(f"Found {paging_result.total} for {resource_type}")
+    validation_issues, validation_error_issues = validate_data_in_paging_result(paging_result, validation_url,
+                                                                                parameters, content_type)
+    issues.extend(validation_issues)
+    error_issues.extend(validation_error_issues)
     print(f"All done for initial request @{resource_type} with {str(parameters)}")
     return general_issues, issues, error_issues, num_of_instances_to_process
 
@@ -258,6 +252,7 @@ def validate_data_in_paging_result(paging_result, validation_url, parameters, co
     for idx, bundle in enumerate(paging_result):
         try:
             op_outcome = simple_test(json.dumps(bundle), validation_url, content_type)
+            # add_resource_url_to_issue(bundle, op_outcome)
             for issue in op_outcome.get('issue', []):
                 issue_set.add(issue)
         except Exception as test_error:
@@ -313,6 +308,7 @@ if __name__ == '__main__':
     parser = configure_arg_parser()
     args = parser.parse_args()
     url = args.url
+    fhir_server_url = args.url
     user = args.user
     pw = args.password
     fhir_token = args.fhir_token

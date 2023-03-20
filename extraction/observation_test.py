@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 
 from main import simple_test
 

@@ -5,19 +5,27 @@ from pylatex import Document, Section, Tabularx, Itemize, Command, Subsection, P
     LongTabularx, Tabular
 from pylatex.utils import bold, NoEscape, escape_latex
 
+from latex_report.QueryingMetaData import get_querying_meta_data_by_type
+
 AUTHOR = 'Lorenz Rosenau'
+SITE = 'Schwarzwaldklinik'
+
+QUERYING_META_DATA = get_querying_meta_data_by_type("QueryingMetaData")
 
 
 class DataQualityReport:
-    def __init__(self, author: str, report: dict):
+    def __init__(self, author: str, site: str, report: dict):
+        self.site = site
         self.author = author
         self.doc = Document()
         self.report = report
 
     def generate_resource_count_overview(self):
+        if not self.report.get("distribution"):
+            return None
         # Define the table format and columns
         table_format = "lccc"
-        header_row = ["Resource Type", "Total", "Code System", "Count"]
+        header_row = [bold("Resource Type"), bold("Total"), bold("Code System"), bold("Count")]
 
         # Define the table data
         table_data = []
@@ -26,6 +34,8 @@ class DataQualityReport:
             code_systems = resource_data.get("code=?|", {})
             for code_system, count in code_systems.items():
                 table_data.append([resource_type, total, code_system, count])
+            if not code_systems:
+                table_data.append([resource_type, total, "", ""])
 
         table = Tabular(table_format)
         # Add the table header
@@ -102,12 +112,34 @@ class DataQualityReport:
 
         return validation_section
 
+    @staticmethod
+    def generate_disclaimer_section():
+        disclaimer_text = NoEscape("This report has been automatically generated and is intended to provide a "
+                                   "snapshot of the data quality at the time of generation. "
+                                   r"It is a work in progress and may contain errors or inaccuracies. \newline "
+                                   "While we have made every effort to ensure that no re-identifying data is present in the "
+                                   "report, we cannot guarantee that this is the case. Therefore, we accept no liability or "
+                                   r"responsibility for any damages or \newline "
+                                   r"consequences arising from the use of this report. \newline "
+                                   "Before sharing this report with individuals outside of your institution, we strongly "
+                                   "recommend that you conduct a diligent review of its contents to ensure that it is suitable "
+                                   r"for your purposes. \newline \newline "
+                                   "Thank you for your understanding and cooperation in this matter.")
+
+        disclaimer_section = Section('Disclaimer')
+        disclaimer_section.append(disclaimer_text)
+        return disclaimer_section
+
     def generate_metrics_section(self):
         metrics_section = Section('Resource Overview')
         metrics_section.append('This section provides an overview of the resources available at the clinical site.')
         metrics_section.append(Command('newline'))
         metrics_section.append(Command('newline'))
-        metrics_section.append(self.generate_resource_count_overview())
+        resource_overview_table = self.generate_resource_count_overview()
+        if resource_overview_table:
+            metrics_section.append(resource_overview_table)
+        else:
+            metrics_section.append('No resources available')
         return metrics_section
 
     def generate_issues_section(self):
@@ -153,7 +185,7 @@ class DataQualityReport:
     def generate_observation_unit_table(self):
         table = LongTabularx('|X|X|X|')
         table.add_hline()
-        table.add_row((bold('Code'), bold('Expected Unit'), bold('Actual Unit')))
+        table.add_row((bold('Loinc Code'), bold('Expected Unit'), bold('Actual Unit')))
         table.add_hline()
         validation_result = self.get_validation_result_by_data_type('Observation')
         for loinc_code, result in validation_result.items():
@@ -189,8 +221,37 @@ class DataQualityReport:
         sub_section.append(Command('newline'))
         issues = validation_result.get("issues")
         self.set_issue_location_resource_type(issues, data_type)
-        sub_section.append(self.generate_issue_table(issues))
+        fdpg_issues = self.filter_issues_by_fdpg_query_paths(issues, data_type)
+        if fdpg_issues:
+            sub_section.append(self.generate_fdpg_issue_section(data_type, fdpg_issues))
+        sub_section.append(Command('newline'))
+        [issues.remove(issue) for issue in fdpg_issues]
+        general_issues = issues
+        if general_issues:
+            sub_section.append(self.generate_general_issue_section(data_type, general_issues))
         return sub_section
+
+    def generate_fdpg_issue_section(self, data_type, fdpg_issues):
+        fdpg_issues_section = Subsubsection(f'{data_type} FDPG Issues')
+        fdpg_issues_section.append('This section provides an overview of the issues direclty related to the search '
+                                   'ontology.')
+        fdpg_issues_section.append(Command('newline'))
+        fdpg_issues_section.append(Command('newline'))
+        if issue_table := self.generate_issue_table(fdpg_issues):
+            fdpg_issues_section.append(issue_table)
+        return fdpg_issues_section
+
+    def generate_general_issue_section(self, data_type, issues):
+        general_issues_section = Subsubsection(f'{data_type} General Issues')
+        general_issues_section.append(
+            'The following issues are not directly related to the search ontology. And should not '
+            'effect the search results. You want to investigate these issues regardless. As they '
+            'indicate incompatibility with the FHIR standard or core data set.')
+        general_issues_section.append(Command('newline'))
+        general_issues_section.append(Command('newline'))
+        if issue_table := self.generate_issue_table(issues):
+            general_issues_section.append(issue_table)
+        return general_issues_section
 
     def get_validation_result_by_data_type(self, data_type):
         return self.report.get("validation").get(data_type, {})
@@ -226,9 +287,40 @@ class DataQualityReport:
 
     def add_title(self):
         self.doc.preamble.append(Command('title', 'Data Quality Report'))
-        self.doc.preamble.append(Command('author', f'{self.author}'))
+        self.doc.preamble.append(Command('author', f'{self.site}'))
         self.doc.preamble.append(Command('date', NoEscape(r'\today')))
         self.doc.append(NoEscape(r'\maketitle'))
+
+    @staticmethod
+    def filter_issues_by_fdpg_query_paths(issues, resource_type):
+        """
+        Filters the issues by the FDPG query paths.
+        :param issues: The issues to filter.
+        :param resource_type: The resource type to get the querying metadata for.
+        :return: The filtered issues.
+        """
+        querying_meta_data = QUERYING_META_DATA.get(resource_type)
+        if not querying_meta_data:
+            return []
+        result = []
+        for issue in issues:
+            location = issue.get("location")[0]
+            # remove index from location
+            location = re.sub(r"\[\d+]", "", location)
+            for relevant_path in querying_meta_data.fhir_paths:
+                if not relevant_path:
+                    continue
+                # Remove [x] from relevant path
+                relevant_path = re.sub(r"\[x]", "", relevant_path)
+                # Remove slice name from relevant path (e.g. Observation.code.coding:loinc.system ->
+                # Observation.code.coding.system)
+                relevant_path = re.sub(r":\w+", "", relevant_path)
+                # Remove parentheses from relevant path
+                relevant_path = relevant_path.replace("(", "").replace(")", "")
+                if location in relevant_path or relevant_path in location:
+                    result.append(issue)
+                    break
+        return result
 
     def generate_report(self):
         self.doc = Document('data_quality_report')
@@ -244,6 +336,11 @@ class DataQualityReport:
 
         self.doc.append(NoEscape(r'\newpage'))
 
+        disclaimer_section = self.generate_disclaimer_section()
+        self.doc.append(disclaimer_section)
+
+        self.doc.append(NoEscape(r'\newpage'))
+
         history_section = self.generate_document_history_table()
         self.doc.append(history_section)
 
@@ -255,6 +352,8 @@ class DataQualityReport:
         validation_section = self.generate_validation_section()
         self.doc.append(validation_section)
 
+        self.doc.append(NoEscape(r'\newpage'))
+
         metrics_section = self.generate_metrics_section()
         self.doc.append(metrics_section)
 
@@ -263,11 +362,11 @@ class DataQualityReport:
         issues_section = self.generate_issues_section()
         self.doc.append(issues_section)
 
-        summary_section = self.generate_summary_section()
-        self.doc.append(summary_section)
-
-        conclusion_section = self.generate_conclusion_section()
-        self.doc.append(conclusion_section)
+        # summary_section = self.generate_summary_section()
+        # self.doc.append(summary_section)
+        #
+        # conclusion_section = self.generate_conclusion_section()
+        # self.doc.append(conclusion_section)
 
         bib_cmd = Command('printbibliography')
         self.doc.append(bib_cmd)
@@ -279,10 +378,15 @@ class DataQualityReport:
         table.add_hline()
         table.add_row((bold("N"), bold("Location"), bold("Description")))
         table.add_hline()
+        if not issues:
+            return None
         for issue in self.sorted_by_severity(issues):
             # set the color of the row based on the severity of the issue
             # force line break in issue diagnostic if it is too long
-            table.add_row(issue.get("count"), issue.get("location")[0], escape_latex(issue.get("diagnostics")),
+            location = issue.get("location")[0]
+            # add new line after each dot
+            location = location.replace(".", r"\newline .")
+            table.add_row(issue.get("count"), location, escape_latex(issue.get("diagnostics")),
                           escape=False,
                           color=self.get_severity_color(issue.get("severity")))
             table.add_hline()
@@ -295,6 +399,8 @@ class DataQualityReport:
         :param issues: The issues to sort.
         :return: The sorted issues.
         """
+        if not issues:
+            return []
         return sorted(issues, key=lambda issue: self.get_severity_order(issue.get("severity")))
 
     @staticmethod
@@ -321,7 +427,7 @@ class DataQualityReport:
 
 
 if __name__ == '__main__':
-    with open('../report/raw_report_2023-03-19-20-17-49.json') as f:
+    with open('../report/raw_report_test.json') as f:
         report_data = json.load(f)
-        quality_report = DataQualityReport(AUTHOR, report_data)
+        quality_report = DataQualityReport(AUTHOR, SITE, report_data)
         quality_report.generate_report()

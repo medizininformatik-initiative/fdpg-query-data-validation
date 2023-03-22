@@ -1,0 +1,10 @@
+{
+  "name": "Einwilligung",
+  "resource_type": "Consent",
+  "context": {
+    "system": "fdpg.mii.cds",
+    "code": "Einwilligung",
+    "display": "Einwilligung"
+  },
+  "term_code_defining_id": "Consent.provision.provision.code"
+}

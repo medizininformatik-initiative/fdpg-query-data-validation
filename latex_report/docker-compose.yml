@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  validation-report-generator:
+    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/latex_report:latest"
+    volumes:
+      - ${REPORT_LOCATION:-./report}:/app/report
+      - ${OUTPUT_LOCATION:-./report}:/app/report
+    environment:
+      - AUTHOR=${AUTHOR}
+      - SITE=${SITE}
+      - REPORT_FILE_NAME=${REPORT_FILE_NAME}

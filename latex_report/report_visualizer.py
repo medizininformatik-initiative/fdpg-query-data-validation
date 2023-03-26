@@ -1,14 +1,12 @@
 import json
+import os
 import re
 
 from pylatex import Document, Section, Tabularx, Itemize, Command, Subsection, Package, LongTable, Subsubsection, \
     LongTabularx, Tabular
 from pylatex.utils import bold, NoEscape, escape_latex
 
-from latex_report.QueryingMetaData import get_querying_meta_data_by_type
-
-AUTHOR = 'Lorenz Rosenau'
-SITE = 'Schwarzwaldklinik'
+from QueryingMetaData import get_querying_meta_data_by_type
 
 QUERYING_META_DATA = get_querying_meta_data_by_type("QueryingMetaData")
 
@@ -58,8 +56,7 @@ class DataQualityReport:
         table.add_hline()
         return table
 
-    @staticmethod
-    def generate_document_history_table():
+    def generate_document_history_table(self):
         history_section = Section('Document History')
 
         with history_section.create(Tabularx('X X X X X')) as table:
@@ -67,7 +64,7 @@ class DataQualityReport:
             table.add_row(
                 (bold('Version'), bold('Date'), bold('Description of Changes'), bold('Author'), bold('Approved By')))
             table.add_hline()
-            table.add_row(('1.0', Command('date', NoEscape(r'\today')), 'Initial version', f"{AUTHOR}", ''))
+            table.add_row(('1.0', Command('date', NoEscape(r'\today')), 'Initial version', f"{self.author}", ''))
             table.add_hline()
 
         return history_section
@@ -504,7 +501,15 @@ class DataQualityReport:
 
 
 if __name__ == '__main__':
-    with open('../report/raw_report_erlangen.json') as f:
+    # Read the author, site, and report filepath from environment variables or use default values
+    author = os.environ.get('AUTHOR', 'Unknown')
+    site = os.environ.get('SITE', 'Unknown')
+    report_filepath = os.environ.get('REPORT_FILEPATH', 'example_report.json')
+
+    # Load the report data from the specified filepath
+    with open(report_filepath) as f:
         report_data = json.load(f)
-        quality_report = DataQualityReport(AUTHOR, SITE, report_data)
-        quality_report.generate_report()
+
+    # Generate the report using the specified author, site, and report data
+    quality_report = DataQualityReport(author, site, report_data)
+    quality_report.generate_report()

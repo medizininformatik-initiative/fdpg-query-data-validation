@@ -11,4 +11,4 @@ if [[ -n "${HTTPS_PACKAGE_DOWNLOAD_PROXY}" ]]
 then
   https_proxy="--https-proxy ${HTTPS_PACKAGE_DOWNLOAD_PROXY} "
 fi
-python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --log-level ERROR --only-put ${http_proxy}${https_proxy}--package ${PACKAGES}
+python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only StructureDefinition --log-level ERROR --only-put ${http_proxy}${https_proxy}--package ${PACKAGES}

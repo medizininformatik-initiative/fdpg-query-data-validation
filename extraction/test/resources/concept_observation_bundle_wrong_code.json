@@ -1,0 +1,86 @@
+{
+  "id": "DBYSLQFQQ3BAL3YX",
+  "type": "searchset",
+  "entry": [
+    {
+      "fullUrl": "http://fhir-server:8080/Observation/053df3f1-b381-4bfc-88c0-2c69037f45a1",
+      "resource": {
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory"
+              },
+              {
+                "system": "http://loinc.org",
+                "code": "26436-6"
+              }
+            ]
+          }
+        ],
+        "meta": {
+          "versionId": "6",
+          "lastUpdated": "2023-03-24T06:43:03.606Z",
+          "profile": [
+            "https://www.medizininformatik-initiative.de/fhir/core/modul-labor/StructureDefinition/ObservationLab"
+          ]
+        },
+        "resourceType": "Observation",
+        "effectiveDateTime": "2018-12-09T21:42:54+01:00",
+        "status": "final",
+        "id": "053df3f1-b381-4bfc-88c0-2c69037f45a1",
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "94306-8"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "OBI"
+                }
+              ]
+            },
+            "system": "urn:uuid:bf9eb516-574f-45dc-94ac-dc090e5f3af0",
+            "value": "k75bv",
+            "assigner": {
+              "reference": "Organization/73cb4a0e-28af-40ae-a5b7-aba6b435fd58",
+              "display": "Ruth AG"
+            }
+          }
+        ],
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "123123123",
+              "display": "Not detected (qualifier value)"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/3efbddb6-6879-4f14-9dfb-ebfa74a0434a",
+          "display": "Karlo Wujak"
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ],
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://fhir-server:8080/fhir/Observation?code=94306-8&_count=50&__t=6&__page-id=053df3f1-b381-4bfc-88c0-2c69037f45a1"
+    }
+  ],
+  "total": 1,
+  "resourceType": "Bundle"
+}

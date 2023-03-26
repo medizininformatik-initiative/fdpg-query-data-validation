@@ -1,0 +1,51 @@
+{
+  "id": "DBYNYRASUX4IVIRO",
+  "type": "searchset",
+  "entry": [
+    {
+      "fullUrl": "http://fhir-server:8080/Specimen/d0fcf3c9-6946-4bb1-b07f-0b3bb41bf932",
+      "resource": {
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-03-04T14:52:21.306Z",
+          "profile": [
+            "https://www.medizininformatik-initiative.de/fhir/ext/modul-biobank/StructureDefinition/Specimen"
+          ]
+        },
+        "collection": {
+          "collectedPeriod": {
+            "start ": "2023-03-04T14:52:21.306Z",
+            "end": "2023-03-04T14:52:21.306Z"
+          }
+        },
+        "type": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "258500001",
+              "display": "Tissue specimen from breast"
+            }
+          ]
+        },
+        "resourceType": "Specimen",
+        "status": "available",
+        "id": "d0fcf3c9-6946-4bb1-b07f-0b3bb41bf932",
+        "subject": {
+          "reference": "Patient/0f355d8c-649b-45db-89dd-d3e87d5a28b6",
+          "display": "Veronika Caspers"
+        }
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ],
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://fhir-server:8080/fhir/Specimen?_count=50&__t=1&__page-id=d0fcf3c9-6946-4bb1-b07f-0b3bb41bf932"
+    }
+  ],
+  "total": 1,
+  "resourceType": "Bundle"
+}

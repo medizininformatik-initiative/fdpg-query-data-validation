@@ -16,7 +16,7 @@ services:
       start_period: 20s
       timeout: 5s
   validation-structure-definition-upload:
-    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/blaze-upload:0.4.0
+    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/blaze-upload:0.4.1
     environment:
       BLAZE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       PACKAGES: "${SIMPLIFIER_PACKAGES}"
@@ -43,7 +43,7 @@ services:
       start_period: 20s
       timeout: 5s
   fhir-data-validator:
-    image: "ghcr.io/itcr-uni-luebeck/fhir-marshal:1.1.7"
+    image: "ghcr.io/itcr-uni-luebeck/fhir-marshal:1.1.8"
     environment:
       STRUCTURE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       TERMINOLOGY_SERVER_URL: "http://validation-terminology-service:8083/fhir"
@@ -80,7 +80,7 @@ services:
       fhir-data-validator:
         condition: service_healthy
   fhir-data-extraction:
-    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.4.0"
+    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/extraction:0.4.1"
     environment:
       FHIR_SERVER_URL: "${FHIR_SERVER_URL:-http://localhost:8080/fhir}"
       TOTAL: "${TOTAL:-500}"

@@ -1,0 +1,58 @@
+{
+    "id": "DBYNY4YNEQZFKNES",
+    "type": "searchset",
+    "entry": [
+        {
+            "fullUrl": "http://fhir-server:8080/Procedure/801ab278-048b-4d3e-a45e-4cea7b70fe43",
+            "resource": {
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2023-03-04T14:52:21.306Z",
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-prozedur/StructureDefinition/Procedure"
+                    ]
+                },
+                "resourceType": "Procedure",
+                "status": "unknown",
+                "id": "801ab278-048b-4d3e-a45e-4cea7b70fe43",
+                "performedDateTime": "2001-01-01T14:13:22+01:00",
+                "category": [
+                    {
+                        "coding": [
+                            {
+                                "system": "http://snomed.info/sct",
+                                "code": "103693007",
+                                "display": "Diagnostic procedure"
+                            }
+                        ]
+                    }
+                ],
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://fhir.de/CodeSystem/bfarm/ops",
+                            "code": "5-78",
+                            "version": "2022",
+                            "display": "Operation am Schlotterkamm"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/b72c6ffd-a74e-4972-95b0-9a5248199b30",
+                    "display": "Bryan Scheurer"
+                }
+            },
+            "search": {
+                "mode": "match"
+            }
+        }
+    ],
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://fhir-server:8080/fhir/Procedure?_count=50&__t=1&__page-id=801ab278-048b-4d3e-a45e-4cea7b70fe43"
+        }
+    ],
+    "total": 1,
+    "resourceType": "Bundle"
+}

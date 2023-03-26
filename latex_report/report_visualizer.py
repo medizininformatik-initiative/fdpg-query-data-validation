@@ -83,7 +83,7 @@ class DataQualityReport:
         intro_section = Section('Introduction')
         khan_ref = Command("cite", NoEscape(r"kahn_harmonized_2016"))
         intro_section.append(
-            f'This data quality report analyzes the compatibility of FHIR data with the "Forschungs Daten Portal '
+            f'This data report analyzes the compatibility of FHIR data with the "Forschungs Daten Portal '
             f'Gesundheit" (FDPG) and is based on the MII Core Data Set (KDS) with further restrictions. '
             f'The focus of this analysis is on completeness and correctness, as defined by Khan et al.')
         intro_section.append(khan_ref)
@@ -91,7 +91,7 @@ class DataQualityReport:
 
     @staticmethod
     def generate_validation_section():
-        validation_section = Section('ValidationValidation Process')
+        validation_section = Section('Validation Process')
 
         validation_section.append('To ensure the quality of the FHIR data, a validation process was used. '
                                   'The process involved the following steps:')
@@ -102,13 +102,16 @@ class DataQualityReport:
                              'data at the clinical sites.')
             itemize.add_item('Identification of discrepancies between the available concepts in the search ontology '
                              'and the instance data at the clinical sites.')
-            itemize.add_item('Identification of discrepancies among the instance data at different clinical sites.')
-            itemize.add_item('Validation of data completeness and correctness towards the core data set.')
+            itemize.add_item('Comparison of the discrepancies among the sites.')
+            itemize.add_item('Adapting the search ontology and the FHIR profiles based on the identified discrepancies '
+                             'iteratively.')
 
-        validation_section.append('This validation process allowed us to gain valuable insight into the quality of the '
-                                  'FHIR data and identify areas for improvement. The process also helped ensure that '
-                                  'the FHIR data adhered to the established standards and restrictions defined by the '
-                                  'search ontology and core data set.')
+        validation_section.append(
+            'This validation process allowed us to gain valuable insight into the descrepcies between '
+            'the FHIR instance data and identify areas for improvement of the search ontology. The process will '
+            'also helps to ensure that '
+            'the FHIR data adhered to the established standards and restrictions defined by the '
+            'search ontology and core data set.')
 
         return validation_section
 
@@ -119,8 +122,7 @@ class DataQualityReport:
                                    r"It is a work in progress and may contain errors or inaccuracies. \newline "
                                    "While we have made every effort to ensure that no re-identifying data is present in the "
                                    "report, we cannot guarantee that this is the case. Therefore, we accept no liability or "
-                                   r"responsibility for any damages or \newline "
-                                   r"consequences arising from the use of this report. \newline "
+                                   r"responsibility for any damages or consequences arising from the use of this report. \newline "
                                    "Before sharing this report with individuals outside of your institution, we strongly "
                                    "recommend that you conduct a diligent review of its contents to ensure that it is suitable "
                                    r"for your purposes. \newline \newline "
@@ -144,7 +146,11 @@ class DataQualityReport:
 
     def generate_issues_section(self):
         issues_section = Section('Data Quality Issues')
-        issues_section.append('This is the data quality issues section.')
+        issues_section.append('This section provides an overview of the data quality issues identified during the '
+                              'validation process. For each resource type their subsection provides a detailed overview '
+                              'of the issues identified. Devided into issues related to the search ontology and '
+                              'general issues. The issues are color coded by their severity. The color code is as follows:'
+                              'red for faults, orange for errors, yellow for warnings and white for information.')
         data_types = ['Consent', 'Condition', 'Medication', 'MedicationAdministration', 'MedicationStatement',
                       'Procedure', 'Specimen']
         for data_type in data_types:
@@ -157,13 +163,74 @@ class DataQualityReport:
     def generate_observation_sub_section(self):
         observation_section = Subsection('Observation')
         observation_section.append('This is the data quality issues section for Observation.')
-        validation_result = self.get_validation_result_by_data_type('Observation')
-        observation_section.append('The number of validated resources is ' + str(validation_result.get("count")) + '.')
-        observation_section.append(Command('newline'))
-        observation_section.append(Command('newline'))
         observation_section.append(self.generate_observation_unit_sub_sub_section())
+        observation_section.append(self.generate_observation_concept_sub_sub_section())
+        observation_section.append(self.generate_observation_general_sub_sub_section())
 
         return observation_section
+
+    def generate_observation_concept_sub_sub_section(self):
+        concept_section = Subsubsection('Observation Concept values')
+        concept_section.append('A predictable issue is the use of different concepts for the same observation.'
+                               'We use loinc answer lists where applicable and fall back to the mii value set '
+                               'otherwise.')
+        concept_section.append(Command('newline'))
+        concept_section.append(self.generate_observation_concept_table())
+        return concept_section
+
+    def generate_observation_concept_table(self):
+        validation_result = self.get_validation_result_by_data_type('Observation')
+        table = LongTable('|p{0.15\\textwidth}|p{0.08\\textwidth}|p{0.78\\textwidth}|')
+        table.add_hline()
+        table.add_row(('LOINC Code', 'Count', 'Issue'))
+        table.add_hline()
+        for loinc_code in validation_result:
+            count = validation_result.get(loinc_code).get("count")
+            issues = validation_result.get(loinc_code).get("issues")
+            self.set_issue_location_resource_type(issues, 'Observation')
+            relevant_issues = self.filter_issues_by_location(issues, 'Observation.value.ofType(CodeableConcept)')
+            for issue in relevant_issues:
+                color = self.get_severity_color(issue.get("severity"))
+                table.add_row((loinc_code, count, issue.get("diagnostics")), color=color)
+                table.add_hline()
+        return table
+
+    def generate_observation_general_sub_sub_section(self):
+        general_section = Subsubsection('General')
+        general_section.append('This is the data quality issues section for Observation General.')
+        general_section.append(Command('newline'))
+        general_section.append(Command('newline'))
+        general_section.append(self.generate_observation_general_table())
+        return general_section
+
+    def generate_observation_general_table(self):
+        validation_result = self.get_validation_result_by_data_type('Observation')
+        issue_to_code = {}
+        for loinc_code in validation_result:
+            for issue in validation_result[loinc_code]['issues']:
+                # remove profile in () at the end of the diagnostic
+                diagnostic = issue['diagnostics'].split('(from')[0]
+                if "Value is" in diagnostic:
+                    continue
+                if diagnostic not in issue_to_code:
+                    issue_to_code[diagnostic] = [(loinc_code, issue)]
+                else:
+                    issue_to_code[diagnostic].append((loinc_code, issue))
+        table = LongTable('p{0.15\\textwidth}|p{0.25\\textwidth}|p{0.6\\textwidth}')
+        table.add_hline()
+        table.add_row(bold('LOINC Code'), bold("location"), bold('Issues'))
+        table.add_hline()
+        table.end_table_header()
+        table.add_hline()
+        # sort by severity
+        for issue, codes_and_details in issue_to_code.items():
+            codes, details = zip(*codes_and_details)
+            color = self.get_severity_color(details[0]['severity'])
+            self.set_issue_location_resource_type(details, 'Observation')
+            location = details[0].get("location", [""])[0]
+            table.add_row("\n ".join(codes), location.replace('.', ' \n .'), issue, color=color)
+            table.add_hline()
+        return table
 
     def generate_observation_unit_sub_sub_section(self):
         sub_sub_section = Subsubsection('Observation Units')
@@ -192,11 +259,12 @@ class DataQualityReport:
             issues = result.get("issues", [])
             unit_issues = self.filter_issues_by_location(issues, "value.ofType(Quantity).code")
             for unit_issue in unit_issues:
-                # extract actual and expected unit from "Value is 'actual' but must be 'expected'" string
-                expected = unit_issue.get("diagnostics").split("'")[3]
-                actual = unit_issue.get("diagnostics").split("'")[1]
-                table.add_row((loinc_code, expected, actual))
-                table.add_hline()
+                if unit_issue.get("diagnostics") and "Value is" in unit_issue.get("diagnostics"):
+                    # extract actual and expected unit from "Value is 'actual' but must be 'expected'" string
+                    expected = unit_issue.get("diagnostics").split("'")[3]
+                    actual = unit_issue.get("diagnostics").split("'")[1]
+                    table.add_row((loinc_code, expected, actual))
+                    table.add_hline()
         return table
 
     @staticmethod
@@ -207,24 +275,25 @@ class DataQualityReport:
         :param location: The location to filter for.
         :return: The filtered issues.
         """
+        if not issues:
+            return []
+        if not issues[0].get("location"):
+            return []
         return [issue for issue in issues if location in issue.get("location")[0]]
 
     def generate_issue_sub_section(self, data_type):
         sub_section = Subsection(data_type)
-        sub_section.append('This is the data quality issues section for ' + data_type + r'.')
+        sub_section.append('This is the data quality issues section for ' + data_type + r'. ')
         validation_result = self.get_validation_result_by_data_type(data_type)
         if not validation_result:
             return None
         validated_resources = validation_result.get("count")
         sub_section.append('The number of validated resources is ' + str(validated_resources) + '.')
-        sub_section.append(Command('newline'))
-        sub_section.append(Command('newline'))
         issues = validation_result.get("issues")
         self.set_issue_location_resource_type(issues, data_type)
         fdpg_issues = self.filter_issues_by_fdpg_query_paths(issues, data_type)
         if fdpg_issues:
             sub_section.append(self.generate_fdpg_issue_section(data_type, fdpg_issues))
-        sub_section.append(Command('newline'))
         [issues.remove(issue) for issue in fdpg_issues]
         general_issues = issues
         if general_issues:
@@ -264,6 +333,10 @@ class DataQualityReport:
         This method replaces the resource type with the actual resource type -> Condition.code
         using a regex.
         """
+        if not issues:
+            return
+        if not issues[0].get("location"):
+            return
         for issue in issues:
             issue["location"][0] = re.sub(r"Bundle.entry\[\d+].resource.ofType\(" + resource_type + r"\)",
                                           resource_type,
@@ -304,6 +377,8 @@ class DataQualityReport:
             return []
         result = []
         for issue in issues:
+            if not issue.get("location"):
+                continue
             location = issue.get("location")[0]
             # remove index from location
             location = re.sub(r"\[\d+]", "", location)
@@ -383,6 +458,8 @@ class DataQualityReport:
         for issue in self.sorted_by_severity(issues):
             # set the color of the row based on the severity of the issue
             # force line break in issue diagnostic if it is too long
+            if not issue.get("location"):
+                continue
             location = issue.get("location")[0]
             # add new line after each dot
             location = location.replace(".", r"\newline .")
@@ -427,7 +504,7 @@ class DataQualityReport:
 
 
 if __name__ == '__main__':
-    with open('../report/raw_report_test.json') as f:
+    with open('../report/raw_report_erlangen.json') as f:
         report_data = json.load(f)
         quality_report = DataQualityReport(AUTHOR, SITE, report_data)
         quality_report.generate_report()

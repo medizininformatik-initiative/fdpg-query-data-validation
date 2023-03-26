@@ -1,0 +1,46 @@
+{
+  "id": "DBYNYUTEXWUTUSVH",
+  "type": "searchset",
+  "entry": [
+    {
+      "fullUrl": "http://fhir-server:8080/Medication/30d26d01-fb99-4155-9acc-9d9f1a92b6ac",
+      "resource": {
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-03-04T14:52:21.306Z"
+        },
+        "resourceType": "Medication",
+        "status": "active",
+        "id": "30d26d01-fb99-4155-9acc-9d9f1a92b6ac",
+        "code": {
+          "coding": [
+            {
+              "system": "http://fhir.de/CodeSystem/bfarm/atc",
+              "code": "V04CZ01",
+              "display": "Sennesfrüchteextrakt"
+            }
+          ]
+        },
+        "ingredient": [
+          {
+            "itemReference": {
+              "reference": "Substance/1231241",
+              "display": "Sennesfrüchteextrakt"
+            }
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ],
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://fhir-server:8080/fhir/Medication?_count=50&__t=1&__page-id=30d26d01-fb99-4155-9acc-9d9f1a92b6ac"
+    }
+  ],
+  "total": 1,
+  "resourceType": "Bundle"
+}

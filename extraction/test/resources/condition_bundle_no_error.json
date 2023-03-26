@@ -1,0 +1,46 @@
+{
+    "id": "DBYJWRM2INJ72LGR",
+    "type": "searchset",
+    "entry": [
+        {
+            "fullUrl": "http://fhir-server:8080/Condition/8f97ac9b-3c2b-4c88-8a48-1c18ba6b4564",
+            "resource": {
+                "meta": {
+                    "versionId": "1",
+                    "lastUpdated": "2023-03-04T14:52:21.306Z",
+                    "profile": [
+                        "https://www.medizininformatik-initiative.de/fhir/core/modul-person/StructureDefinition/Todesursache"
+                    ]
+                },
+                "resourceType": "Condition",
+                "recordedDate": "2023-02-15T08:30:00Z",
+                "id": "8f97ac9b-3c2b-4c88-8a48-1c18ba6b4564",
+                "code": {
+                    "coding": [
+                        {
+                            "system": "http://fhir.de/CodeSystem/bfarm/icd-10-gm",
+                            "code": "Q74.8",
+                            "version": "2022",
+                            "display": "Sonstige näher bezeichnete angeborene Fehlbildungen der Extremität(en)"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/08417793-3591-47dc-8ceb-a6add6c403f4",
+                    "display": "Esma Klaus"
+                }
+            },
+            "search": {
+                "mode": "match"
+            }
+        }
+    ],
+    "link": [
+        {
+            "relation": "self",
+            "url": "http://fhir-server:8080/fhir/Condition?_count=50&__t=1&__page-id=8f97ac9b-3c2b-4c88-8a48-1c18ba6b4564"
+        }
+    ],
+    "total": 1,
+    "resourceType": "Bundle"
+}

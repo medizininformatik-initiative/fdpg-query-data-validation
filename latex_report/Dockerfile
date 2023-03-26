@@ -20,5 +20,3 @@ WORKDIR /app
 # Copy all the necessary files and directories to the container
 COPY . /app
 
-# Run the Python script to generate the PDF
-CMD ["python", "report_visualizer.py"]

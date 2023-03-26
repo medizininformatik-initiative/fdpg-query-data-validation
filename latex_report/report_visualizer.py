@@ -443,7 +443,8 @@ class DataQualityReport:
         bib_cmd = Command('printbibliography')
         self.doc.append(bib_cmd)
 
-        self.doc.generate_pdf(filepath=f"./output/{self.site}_quality_report", clean_tex=True)
+        print("Saving report...")
+        self.doc.generate_pdf(filepath=f"output/{self.site}_quality_report", clean_tex=True)
 
     def generate_issue_table(self, issues):
         table = LongTable('p{0.05\\textwidth}p{0.3\\textwidth}p{0.65\\textwidth}')
@@ -511,7 +512,9 @@ if __name__ == '__main__':
     # Load the report data from the specified filepath
     with open(report_filepath) as f:
         report_data = json.load(f)
-
+    print(f"Generating report for {site}...")
+    print("Report path: " + report_filepath)
     # Generate the report using the specified author, site, and report data
     quality_report = DataQualityReport(author, site, report_data)
+    print("Generating report...")
     quality_report.generate_report()

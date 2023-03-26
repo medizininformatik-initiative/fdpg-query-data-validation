@@ -443,7 +443,7 @@ class DataQualityReport:
         bib_cmd = Command('printbibliography')
         self.doc.append(bib_cmd)
 
-        self.doc.generate_pdf(clean_tex=True)
+        self.doc.generate_pdf(filepath=f"./output/{self.site}_quality_report", clean_tex=True)
 
     def generate_issue_table(self, issues):
         table = LongTable('p{0.05\\textwidth}p{0.3\\textwidth}p{0.65\\textwidth}')
@@ -505,6 +505,8 @@ if __name__ == '__main__':
     author = os.environ.get('AUTHOR', 'Unknown')
     site = os.environ.get('SITE', 'Unknown')
     report_filepath = os.environ.get('REPORT_FILEPATH', 'example_report.json')
+    if report_filepath != 'example_report.json':
+        report_filepath = report_filepath + "/" + os.environ.get('REPORT_FILE_NAME', '')
 
     # Load the report data from the specified filepath
     with open(report_filepath) as f:

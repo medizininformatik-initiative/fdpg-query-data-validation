@@ -18,11 +18,7 @@ RUN pip install --upgrade pylatex
 WORKDIR /app
 
 # Copy all the necessary files and directories to the container
-COPY QueryingMetaData /app/QueryingMetaData
-COPY QueryingMetaData.py /app
-COPY references.bib /app
-COPY report_visualizer.py /app
-COPY example_report.json /app
+COPY . /app
 
 # Run the Python script to generate the PDF
-CMD ["python", "report_visualizer.py", "--author", "$AUTHOR", "--site", "$SITE", "--report_filepath", "$REPORT_FILEPATH"]
+CMD ["python", "report_visualizer.py"]

@@ -4,7 +4,7 @@ services:
     image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/latex_report:latest"
     volumes:
       - ${REPORT_LOCATION:-./report}:/app/report
-      - ${OUTPUT_LOCATION:-./report}:/app/report
+      - ${OUTPUT_LOCATION:-./output}:/app/output
     environment:
       - AUTHOR=${AUTHOR}
       - SITE=${SITE}

@@ -501,13 +501,24 @@ class DataQualityReport:
             return "white"
 
 
+def get_last_updated_json(path):
+    json_files = [file for file in os.listdir(path) if file.endswith('.json')]
+    json_files.sort(key=lambda x: os.path.getmtime(os.path.join(path, x)))
+    last_updated_json = json_files[-1]
+    return last_updated_json
+
+
 if __name__ == '__main__':
     # Read the author, site, and report filepath from environment variables or use default values
     author = os.environ.get('AUTHOR', 'Unknown')
     site = os.environ.get('SITE', 'Unknown')
     report_filepath = os.environ.get('REPORT_FILEPATH', 'example_report.json')
     if report_filepath != 'example_report.json':
-        report_filepath = report_filepath + "/" + os.environ.get('REPORT_FILE_NAME', '')
+        if filename := get_last_updated_json(report_filepath):
+            report_filepath = report_filepath + "/" + filename
+        else:
+            print("No JSON files found in the given directory")
+            exit(1)
 
     # Load the report data from the specified filepath
     with open(report_filepath) as f:

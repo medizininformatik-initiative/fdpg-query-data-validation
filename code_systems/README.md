@@ -1,0 +1,1 @@
+This directory is supposed to contain the expanded codesystems used for validation

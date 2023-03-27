@@ -14,10 +14,13 @@ how to run this tool itself, but also on how to integrate it into existing softw
 If not already installed on your virtual machine download and install: 
 
 #### Linux:
-Docker (https://docs.docker.com/engine/install/ubuntu/) and the docker-compose plugin (https://docs.docker.com/compose/install/linux/).
+:warning: We mean docker compose not docker-compose which is an older version of docker compose!
+Docker (https://docs.docker.com/engine/install/ubuntu/) and the docker compose plugin (https://docs.docker.com/compose/install/linux/).
 
 #### Windows:
-Docker Desktop with integrated docker-compose plugin (https://docs.docker.com/desktop/install/windows-install/)
+:warning: We mean docker compose not docker-compose which is an older version of docker compose!
+
+Docker Desktop with integrated docker compose plugin (https://docs.docker.com/desktop/install/windows-install/)
 
 ### Step 2 - Clone this Repository to your virtual machine
 ssh to your virtual machine and switch to sudo `sudo -s` <br />
@@ -27,7 +30,7 @@ Navigate into the project directory: `cd /opt/fdpg-query-data-validation` <br />
 Checkout the version (git tag) of the fdpg-query-data-validation you would like to install: `git checkout tags/<your-tag-name-here>` <br />
 
 ### Step 3 - Initialise .env files
-The fdpg-query-data-validation requires an .env file for the docker-compose setup. If you are setting up the project new and have not done so yet execute the `bash initialize-env-file.sh`.
+The fdpg-query-data-validation requires an .env file for the docker compose setup. If you are setting up the project new and have not done so yet execute the `bash initialize-env-file.sh`.
 
 If you have set up the tool before compare the .env to the .env.default env files of each component and copy the additional params as appropriate
 
@@ -67,23 +70,37 @@ cd /opt/fdpg-query-data-validation
 
 If you are running this on a **Linux** machine you will need to grant read/write permissions for the directory in which
 you want the generated reports to end up. By the default, the location would be **/opt/fdpg-query-data-validation/report**.
+This also applies to the output directory. If you want to generate the pdf report. By the default, the location would 
+be **/opt/fdpg-query-data-validation/output**.
 
 ```bash
 chown -R 1000:1000 /<path>/<to>/<reports>
 chmod -R u=rwx /<path>/<to>/<reports>
+chown -R 1000:1000 /<path>/<to>/<output>
+chmod -R u=rwx /<path>/<to>/<output>
 ```
 
 ### Step 6 Startup
 To start the validaiton process run: `bash startup_and_run.sh`
 This will perform an initial setup which takes about 5 minutes and performs 1 validation run.
 The report is available at REPORT_LOCATION
+After the run the cointainer will not be stopped and will be available for further runs. If you want to stop the 
+container run `bash shutdown.sh`
 
 If you want to rerun the validation process run: `bash run.sh`
 
 To stop all container run: `bash shutdown.sh`
 
+### Step 7 - Optional: Generate PDF Report
+If you want to generate a PDF report from the validation results you can run the following command: `bash generate_pdf_report.sh`
+Based on the configuration of the .env file the pdf version for the latest report in the report folder will be generated 
+in the output folder.
+
     
 ### Deploying a FHIR server
+_This is not required by if you want to create a FHIR server to test the validation tool against you can follow the instructions below._
+
+
 Before deploying this tool you need some FHIR server to which request can be made. This example will use
 the [Blaze FHIR server](https://github.com/samply/blaze) which you can easily deploy using Docker with
 the following commands:
@@ -129,7 +146,7 @@ The environment variables can be configured in the **.env** file.
 | **STRUCTURE_DEFINITION_SERVER_PORT** |                                                                                                                                                                                                                    8090                                                                                                                                                                                                                    |                                                                             Port on which the Blaze FHIR server can be accessed externally                                                                              |
 |     **FHIR_DATA_VALIDATOR_PORT**     |                                                                                                                                                                                                                    8091                                                                                                                                                                                                                    |                                                                           Port on which the FHIR Marshal validator can be accessed externally                                                                           |
 |     **TERMINOLOGY_SERVICE_PORT**     |                                                                                                                                                                                                                    8093                                                                                                                                                                                                                    |                                                                                 Port of the terminology service used during validation                                                                                  |
-|             **PACKAGES**             | "de.medizininformatikinitiative.kerndatensatz.laborbefund@1.0.7-alpha1 de.medizininformatikinitiative.kerndatensatz.person@2.0.0-ballot2 de.medizininformatikinitiative.kerndatensatz.diagnose@2.0.0-alpha3 de.medizininformatikinitiative.kerndatensatz.medikation@1.0.11 de.medizininformatikinitiative.kerndatensatz.prozedur@2.0.0-alpha5 de.medizininformatikinitiative.kerndatensatz.biobank@1.0.3 de.einwilligungsmanagement@1.0.1" | String containing packages to load into the Blaze FHIR server and provide the necessary StructureDefinition instances for validation from [Simplifier](https://simplifier.net/). By default the KDS profiles are loaded |
+|             **PACKAGES**             | "fdpg.query_profiles 0.0.6-alpha" | String containing packages to load into the Blaze FHIR server and provide the necessary StructureDefinition instances for validation from [Simplifier](https://simplifier.net/). By default the KDS profiles are loaded |
 |         **FHIR_SERVER_URL**          |                                                                                                                                                                                                       "http://fhir-server:8080/fhir"                                                                                                                                                                                                       |                                                                      URL of the FHIR server from which the data that will be validated is obtained                                                                      |
 |         **PROJECT_CONTEXT**          |                                                                                                                                                                                                             feasibility-deploy                                                                                                                                                                                                             |                                                                   The context in which both this tool and your FHIR server (data source) have to run.                                                                   |
 |              **TOTAL**               |                                                                                                                                                                                                                    500                                                                                                                                                                                                                     |                                    Total number of instances for each relevant resource type (and unique LOINC code for Observation instances) which are pulled from the FHIR server                                    |
@@ -148,6 +165,9 @@ The environment variables can be configured in the **.env** file.
 |       **VALUE_SET_DIRECTORY**        |                                                                                                                                                                                                               "./value_sets"                                                                                                                                                                                                               |                                                  Location of the **expanded** ValueSet instances you might require if you want to validate against your own profiles.                                                   |
 |      **CODE_SYSTEM_DIRECTORY**       |                                                                                                                                                                                                              "./code_system"                                                                                                                                                                                                               |                                                 Location of the **explicit** CodeSystem instances you might require if you want to validate against your own profiles.                                                  |
 |   **VALIDATION_MAPPING_DIRECTORY**   |                                                                                                                                                                                                               "./value_sets"                                                                                                                                                                                                               |                                                                                              Location of the Mapping json                                                                                               |
+|   **AUTHOR**   |                                                                                                                                                                                                               "Joe Doe"                                                                                                                                                                                                               |                                                                                              Author of the report                                                                                              |
+|   **SITE**   |                                                                                                                                                                                                               "SWK"                                                                                                                                                                                                               |                                                                                              Site of the report                                                                                               |
+|   **OUTPUT_LOCATION**   |                                                                                                                                                                                                               "./output"                                                                                                                                                                                                               |                                                                                              Location of the pdf result                                                                                               |
 
 ## Architecture
 This validation tool consists out of multiple components each of which is serving a unique purpose. Upon startup, the 

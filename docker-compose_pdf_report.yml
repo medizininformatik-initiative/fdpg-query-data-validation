@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   validation-report-generator:
-    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/latex_report:latest"
+    image: "ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/latex_report:0.5.0-RC"
     volumes:
       - ${REPORT_LOCATION:-./report}:/app/report
       - ${OUTPUT_LOCATION:-./output}:/app/output

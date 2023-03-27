@@ -1,1 +1,0 @@
-This directory is supposed to contain the expanded value sets used for validation

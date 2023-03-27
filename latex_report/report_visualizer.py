@@ -444,8 +444,7 @@ class DataQualityReport:
         self.doc.append(bib_cmd)
 
         print("Saving report...")
-        self.doc.generate_pdf(filepath=f"output/{self.site}_quality_report", clean_tex=False)
-        self.doc.generate_pdf(filepath=f"output/{self.site}_quality_report", clean_tex=False)
+        self.doc.generate_pdf(filepath=f"output/{self.site}_quality_report", clean=True, clean_tex=True)
 
 
     def generate_issue_table(self, issues):

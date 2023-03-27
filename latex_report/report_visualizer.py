@@ -513,7 +513,7 @@ if __name__ == '__main__':
     # Read the author, site, and report filepath from environment variables or use default values
     author = os.environ.get('AUTHOR', 'Unknown')
     site = os.environ.get('SITE', 'Unknown')
-    report_filepath = os.environ.get('REPORT_FILEPATH', 'example_report.json')
+    report_filepath = os.environ.get('REPORT_LOCATION', 'example_report.json')
     if report_filepath != 'example_report.json':
         if filename := get_last_updated_json(report_filepath):
             report_filepath = report_filepath + "/" + filename

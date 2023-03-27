@@ -9,4 +9,4 @@ services:
       - AUTHOR=${AUTHOR}
       - SITE=${SITE}
       - REPORT_FILE_NAME=${REPORT_FILE_NAME}
-    command: tail -F anything
+    command: ["python", "report_visualizer.py"]

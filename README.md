@@ -80,6 +80,25 @@ chown -R 1000:1000 /<path>/<to>/<output>
 chmod -R u=rwx /<path>/<to>/<output>
 ```
 
+### Step 5b (Optional) Download required simplifier packages.
+In case your deployment enviroment does not allow you to download the required simplifier packages from the internet, 
+you can download them manually and place them in the simplifier_packages folder. The required packages are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453)
+and can be uploaded to your server. After that you can unzip the packages and copy them to the simplifier_packages folder.
+
+```bash
+sudo -s
+mkdir /<path>/<to>/<downloaded>/<persistence>
+cd /<path>/<to>/<downloaded>/<persistence>
+unzip persistence_*.zip
+cd persistence
+cp * /opt/fdpg-query-data-validation/persistence
+cd /opt/fdpg-query-data-validation
+```
+
+Ensure you configure the .env file to use the local packages instead of downloading them from the internet:
+UPLOAD_FROM_PERSISTENCE=true
+PERSISTENCE_DIR="./persistence"
+
 ### Step 6 Startup
 To start the validaiton process run: `bash startup_and_run.sh`
 This will perform an initial setup which takes about 5 minutes and performs 1 validation run.
@@ -168,6 +187,11 @@ The environment variables can be configured in the **.env** file.
 |   **AUTHOR**   |                                                                                                                                                                                                               "Joe Doe"                                                                                                                                                                                                               |                                                                                              Author of the report                                                                                              |
 |   **SITE**   |                                                                                                                                                                                                               "SWK"                                                                                                                                                                                                               |                                                                                              Site of the report                                                                                               |
 |   **OUTPUT_LOCATION**   |                                                                                                                                                                                                               "./output"                                                                                                                                                                                                               |                                                                                              Location of the pdf result                                                                                               |
+|   **PERSISTENCE_DIR**  |                                                                                                                                                                                                               "./persistence"                                                                                                                                                                                                               |                                                                                              Location of the persisted Simplifier packages                                                                                               |
+|   **UPLOAD_FROM_PERSISTENCE**  |                                                                                                                                                                                                               "false"                                                                                                                                                                                                               |                                                                                              Upload from persistence.                                                                                             |
+
+
+
 
 ## Architecture
 This validation tool consists out of multiple components each of which is serving a unique purpose. Upon startup, the 

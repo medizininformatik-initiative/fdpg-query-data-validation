@@ -11,7 +11,11 @@ if [[ -n "${HTTPS_PACKAGE_DOWNLOAD_PROXY}" ]]
 then
   https_proxy="--https-proxy ${HTTPS_PACKAGE_DOWNLOAD_PROXY} "
 fi
-python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only StructureDefinition --log-level ERROR --only-put ${http_proxy}${https_proxy}--package ${PACKAGES}
+if [[ -n "${UPLOAD_FROM_LOCAL}" ]]
+then
+  upload_from_local_args="--persistence-dir /app/persistence --from-persistence "
+fi
+python -m fhir_populator --endpoint "${BLAZE_SERVER_URL}" --get-dependencies --non-interactive --only StructureDefinition --log-level ERROR --only-put ${http_proxy}${https_proxy}${upload_from_local_args}--package ${PACKAGES}
 echo "Uploading own StructureDefinition instances to Blaze@${BALZE_SERVER_URL}"
 for file in ./fhir_profiles/**/*.json
 do

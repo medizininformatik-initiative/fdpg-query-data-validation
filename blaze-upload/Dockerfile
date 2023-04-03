@@ -12,7 +12,7 @@ RUN apk add --no-cache bash
 RUN pip install virtualenv
 RUN python -m venv .venv
 RUN source .venv/bin/activate
-RUN python -m pip install --upgrade fhir-populator
+RUN python -m pip install --upgrade fhir-populator==1.3.0
 
 COPY . /app
 WORKDIR /app

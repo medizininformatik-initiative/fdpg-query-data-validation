@@ -91,7 +91,7 @@ mkdir /<path>/<to>/<downloaded>/<persistence>
 cd /<path>/<to>/<downloaded>/<persistence>
 unzip persistence_*.zip
 cd persistence
-cp * /opt/fdpg-query-data-validation/persistence
+cp -r * /opt/fdpg-query-data-validation/persistence
 cd /opt/fdpg-query-data-validation
 ```
 

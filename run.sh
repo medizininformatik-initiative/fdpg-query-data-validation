@@ -1,2 +1,5 @@
 #!/bin/bash
-docker compose restart fhir-data-extraction
+set -o allexport
+source .env
+set +o allexportsource .env
+docker compose -p "${PROJECT_CONTEXT:-feasibility-deploy}" restart fhir-data-extraction

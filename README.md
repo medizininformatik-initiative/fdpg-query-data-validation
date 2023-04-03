@@ -44,7 +44,7 @@ Change the following environment variables to match the configuration of the FHI
 
 ### Step 5 Download required value sets and code systems
 
-The required ValueSets and CodeSystems for the validation are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453) 
+The required ValueSets and CodeSystems for the validation are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=235842735) 
 Upload the value_sets_*.zip and code_systems_*.zip file to your server, unpack them and copy the ValueSets files to your value_sets folder and the CodeSystem files to your code_system folder respectively. 
 Afterwards return to your installation dir.
 
@@ -82,7 +82,7 @@ chmod -R u=rwx /<path>/<to>/<output>
 
 ### Step 5b (Optional) Download required simplifier packages.
 In case your deployment enviroment does not allow you to download the required simplifier packages from the internet, 
-you can download them manually and place them in the simplifier_packages folder. The required packages are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=218743453)
+you can download them manually and place them in the simplifier_packages folder. The required packages are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=235842735)
 and can be uploaded to your server. After that you can unzip the packages and copy them to the simplifier_packages folder.
 
 ```bash

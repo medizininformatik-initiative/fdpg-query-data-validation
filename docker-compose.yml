@@ -16,12 +16,13 @@ services:
       start_period: 20s
       timeout: 5s
   validation-structure-definition-upload:
-    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/blaze-upload:0.5.1
+    image: ghcr.io/medizininformatik-initiative/fdpg-query-data-validation/blaze-upload:0.5.2
     environment:
       BLAZE_SERVER_URL: "http://validation-structure-definition-server:8080/fhir"
       PACKAGES: "${SIMPLIFIER_PACKAGES}"
       HTTP_PACKAGE_DOWNLOAD_PROXY: "${HTTP_PACKAGE_DOWNLOAD_PROXY}"
       HTTPS_PACKAGE_DOWNLOAD_PROXY: "${HTTPS_PACKAGE_DOWNLOAD_PROXY}"
+      UPLOAD_FROM_LOCAL: "${UPLOAD_FROM_LOCAL}"
     volumes:
       - ${FHIR_PROFILE_DIRECTORY:-./fhir_profiles}:/app/fhir_profiles
       - ${PERSISTENCE_DIRECTORY:-./persistence}:/app/persistence

@@ -81,6 +81,7 @@ chmod -R u=rwx /<path>/<to>/<output>
 ```
 
 ### Step 5b (Optional) Download required simplifier packages.
+This features is only supported for Versions > v0.5.2
 In case your deployment enviroment does not allow you to download the required simplifier packages from the internet, 
 you can download them manually and place them in the simplifier_packages folder. The required packages are available here: [Confluence](https://confluence.imi.med.fau.de/pages/viewpage.action?pageId=235842735)
 and can be uploaded to your server. After that you can unzip the packages and copy them to the simplifier_packages folder.
